@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Backups & Temporary files
+*.bak
+*.bak_*
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build / Unpacked artifacts
+app-unpacked/
+work/
