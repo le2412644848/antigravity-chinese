@@ -226,15 +226,25 @@ async function main() {
 
         // 5.3 main.js —— 对话框与托盘中文化
         let mainJs = fs.readFileSync(path.join(distDir, "main.js"), "utf8");
-        if (mainJs.includes("setAccessibilitySupportEnabled")) {
+        if (mainJs.includes("未找到程序文件")) {
             warn("main.js：补丁已存在，跳过");
         } else {
-            mainJs = applyPatch("main.js", mainJs,
-                "    main_1.default.initialize();",
-                "    // 保持无障碍树常驻(中文词表注入依赖 MutationObserver,也便于外部工具读取界面)\n" +
-                "    electron_1.app.setAccessibilitySupportEnabled(true);\n" +
-                "    main_1.default.initialize();",
-                "无障碍树常驻");
+            // 44.x 起 initialize 改为传参对象 initialize({...})，锚点随之更新（同时兼容旧版 initialize();）
+            if (mainJs.includes("    main_1.default.initialize({")) {
+                mainJs = applyPatch("main.js", mainJs,
+                    "    main_1.default.initialize({",
+                    "    // 保持无障碍树常驻(中文词表注入依赖 MutationObserver,也便于外部工具读取界面)\n" +
+                    "    electron_1.app.setAccessibilitySupportEnabled(true);\n" +
+                    "    main_1.default.initialize({",
+                    "无障碍树常驻");
+            } else {
+                mainJs = applyPatch("main.js", mainJs,
+                    "    main_1.default.initialize();",
+                    "    // 保持无障碍树常驻(中文词表注入依赖 MutationObserver,也便于外部工具读取界面)\n" +
+                    "    electron_1.app.setAccessibilitySupportEnabled(true);\n" +
+                    "    main_1.default.initialize();",
+                    "无障碍树常驻(旧版锚点)");
+            }
             mainJs = applyPatch("main.js", mainJs,
                 "showErrorBox('Binary not found', msg)",
                 "showErrorBox('未找到程序文件', msg)",
@@ -271,6 +281,24 @@ async function main() {
                 "detail: 'There may be agents or background tasks running.',",
                 "detail: '可能仍有智能体或后台任务正在运行。',",
                 "退出确认框·补充说明");
+            // 5.3.1 WSL 相关对话框
+            mainJs = applyPatch("main.js", mainJs,
+                "title: 'WSL distro not found',",
+                "title: '未找到 WSL 发行版',",
+                "WSL·未找到发行版");
+            mainJs = applyPatch("main.js", mainJs,
+                "detail: 'Antigravity opened on Windows instead.',",
+                "detail: '已在 Windows 上打开 Antigravity。',",
+                "WSL·改为在 Windows 打开");
+            mainJs = applyPatch("main.js", mainJs,
+                "showErrorBox('WSL setup failed', msg)",
+                "showErrorBox('WSL 配置失败', msg)",
+                "WSL·配置失败");
+            // 5.3.2 macOS Dock 菜单
+            mainJs = applyPatch("main.js", mainJs,
+                "label: 'New Window',",
+                "label: '新建窗口',",
+                "Dock·新建窗口");
             fs.writeFileSync(path.join(distDir, "main.js"), mainJs, "utf8");
         }
 
@@ -313,8 +341,72 @@ async function main() {
             }
         }
 
-        // 5.6 语法校验
-        for (const f of ["utils.js", "main.js", "loadingOverlay.js", "menu.js", "i18n-zh.js"]) {
+        // 5.6 updater.js —— 更新菜单状态枚举与"检查更新"对话框中文化
+        let updater = fs.readFileSync(path.join(distDir, "updater.js"), "utf8");
+        if (updater.includes('MenuUpdateStep["CheckForUpdates"] = "检查更新";')) {
+            warn("updater.js：补丁已存在，跳过");
+        } else {
+            updater = applyPatch("updater.js", updater,
+                'MenuUpdateStep["CheckForUpdates"] = "Check for Updates";',
+                'MenuUpdateStep["CheckForUpdates"] = "检查更新";',
+                "更新菜单·检查更新");
+            updater = applyPatch("updater.js", updater,
+                'MenuUpdateStep["CheckingForUpdates"] = "Checking for Updates...";',
+                'MenuUpdateStep["CheckingForUpdates"] = "正在检查更新...";',
+                "更新菜单·正在检查");
+            updater = applyPatch("updater.js", updater,
+                'MenuUpdateStep["DownloadingUpdate"] = "Downloading Update...";',
+                'MenuUpdateStep["DownloadingUpdate"] = "正在下载更新...";',
+                "更新菜单·正在下载");
+            updater = applyPatch("updater.js", updater,
+                'MenuUpdateStep["RestartToUpdate"] = "Restart to Update";',
+                'MenuUpdateStep["RestartToUpdate"] = "重启以更新";',
+                "更新菜单·重启更新");
+            updater = applyPatch("updater.js", updater,
+                "title: 'Check for Updates',",
+                "title: '检查更新',",
+                "更新对话框·标题");
+            updater = applyPatch("updater.js", updater,
+                "message: 'No updates available',",
+                "message: '已是最新版本',",
+                "更新对话框·无更新");
+            updater = applyPatch("updater.js", updater,
+                "buttons: ['OK'],",
+                "buttons: ['确定'],",
+                "更新对话框·按钮");
+            fs.writeFileSync(path.join(distDir, "updater.js"), updater, "utf8");
+        }
+
+        // 5.7 ipcHandlers.js —— 选择工作区/下载目录等原生对话框标题与提示
+        let ipc = fs.readFileSync(path.join(distDir, "ipcHandlers.js"), "utf8");
+        if (ipc.includes("'打开工作区'")) {
+            warn("ipcHandlers.js：补丁已存在，跳过");
+        } else {
+            ipc = applyPatch("ipcHandlers.js", ipc,
+                "title: 'Open workspace',",
+                "title: '打开工作区',",
+                "对话框·打开工作区");
+            ipc = applyPatch("ipcHandlers.js", ipc,
+                "title: 'Open workspaces',",
+                "title: '打开多个工作区',",
+                "对话框·打开多个工作区");
+            ipc = applyPatch("ipcHandlers.js", ipc,
+                "title: 'Select Download Folder',",
+                "title: '选择下载文件夹',",
+                "对话框·选择下载文件夹");
+            ipc = applyPatch("ipcHandlers.js", ipc,
+                "showErrorBox('Cannot open folder', t.error)",
+                "showErrorBox('无法打开文件夹', t.error)",
+                "对话框·无法打开文件夹");
+            ipc = applyPatch("ipcHandlers.js", ipc,
+                "message: 'Folder is on the Windows filesystem',",
+                "message: '该文件夹位于 Windows 文件系统上',",
+                "对话框·Windows 文件系统提示");
+            fs.writeFileSync(path.join(distDir, "ipcHandlers.js"), ipc, "utf8");
+        }
+
+        // 5.8 语法校验
+        for (const f of ["utils.js", "main.js", "loadingOverlay.js", "menu.js", "i18n-zh.js", "updater.js", "ipcHandlers.js"]) {
             if (!syntaxCheck(path.join(distDir, f))) die(f + " 语法校验失败，已中止（安装目录未改动）");
         }
         ok("全部文件语法校验通过");

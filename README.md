@@ -1,7 +1,7 @@
 # Antigravity 桌面端汉化包 v2
 
 给 Google Antigravity 桌面端（`%LOCALAPPDATA%\Programs\antigravity\Antigravity.exe`，Agentic Desktop Application）做的中文界面。
-v1 制作于 2026-08-30（适用 2.11.0）；**v2 重制于 2026-09-05，已适配 2.12.2，且改为“版本自适应”方案：每次从当前安装的官方版本提取代码重新打补丁，官方更新后直接重跑脚本即可，不再依赖固定版本的源码。**
+v1 制作于 2026-08-30（适用 2.11.0）；**v2 重制于 2026-09-05（初版适配 2.12.2；**现已在 44.9.1 上完整验证**），且改为“版本自适应”方案：每次从当前安装的官方版本提取代码重新打补丁，官方更新后直接重跑脚本即可，不再依赖固定版本的源码。**
 
 > **2026-10-28 适配 44.5.1（官方改用新版本号体系）**：
 > 1. 新版在 `utils.js` 里 `void win.loadURL(url);` 与 `return win;` 之间插入了 `hubWindows.add(win);`，导致旧的整段锚点失效、界面注入被静默跳过（表现为菜单/托盘中文、但正文全英文）。已把注入锚点改为稳定的 `void win.loadURL(url);`（缺失时回退到 `hubWindows.add(win);`），不再依赖易变的相邻语句。
@@ -52,3 +52,54 @@ v1 制作于 2026-08-30（适用 2.11.0）；**v2 重制于 2026-09-05，已适�
 - 若汉化后 Antigravity 无法启动:先跑 `一键还原.cmd` 恢复原版，再把 `一键汉化.cmd` 窗口里的输出发给维护者。
 - 需要 Node.js(≥16)且在 PATH 中(`where node` 能找到)。
 - 沙盒/受限环境里启动 Antigravity 可能因写不了 `%APPDATA%\antigravity\lockfile` 而秒退(报 `process_singleton_win.cc Lock file can not be created`),这不是汉化的问题，正常双击快捷方式启动即可。
+
+---
+
+## 2026-11-11 适配 44.9.1 —— 完整性补译（本轮）
+
+针对"官方多次更新后汉化不到位"做了一次系统性审计与补齐，**词表从 1814 条扩到 2783 条（+53%）**，并新增三类动态匹配机制：
+
+| 机制 | 数量 | 作用 |
+| --- | --- | --- |
+| MAP 精确词条 | 2407 | 静态界面文本（原有 + 本轮新增约 590 条） |
+| REGEX_MAP 正则 | 39 | 纯数字/时间句式（1mo、5 minutes ago、Every 2 hours、3:00 PM…） |
+| PREFIX_MAP 前缀 | 24 | 带动态尾部的句式（Next run …、Resets in …、Your Plan: …） |
+| DYNAMIC_MAP 句式 | 64 | **新增**：模板字符串里插入变量的句子（Welcome back, {name}. Where should we pick up?、Copied {x} to clipboard…） |
+
+本轮修复的典型问题：
+
+1. **单数形式缺失**：词表原先只收了复数（Skills/Plugins/Agents），单数 Skill/Plugin/Agent/Hook/Rule/Extension/Environment 等全部漏翻。
+2. **高频按钮词缺失**：Skip/Dismiss/Retry/Next/Done/Confirm/Reset/Apply/Export/Import/Share/Log in/Connect/Disconnect 等。
+3. **大小写/标点近失配**：Good Response（原文 Good response）、Open In（Open in）、Pull Requests（Pull requests）、Undo to Here（Undo To Here）、Tip:/Output:/Command:（原文带冒号）等 11 处**静默不翻**，已补齐。
+4. **动态句式全漏**：just now、5 minutes ago、Next run today around 9:00 AM、Resets in 2h 30m、Show 3 more、Every hour at :30、AM/PM 时间等，靠"整串精确匹配"永远命中不了，已由 REGEX_MAP/PREFIX_MAP/DYNAMIC_MAP 覆盖。
+5. **React 拆分文本节点导致中英混杂**：设置页权限卡片被 React 拆成 "Also includes" + <span>Global Permissions</span> + "when working " + "in this project" + "." 五个节点，整句永远拼不出来。已改为**片段级翻译**（逐节点命中）+ 删除会造成混杂的前缀规则，并把 ./,/:/; 独立标点也纳入词表。
+6. **外壳层英文**：WSL setup failed、WSL distro not found、Antigravity opened on Windows instead.、New Window、Check for Updates/Checking for Updates.../Downloading Update.../Restart to Update、Open workspace/Open workspaces/Select Download Folder/Cannot open folder/Folder is on the Windows filesystem —— 已在 main.js/updater.js/ipcHandlers.js/menu.js 中全部中文化（localize.js 新增 5.6/5.7 两节补丁）。
+7. **失效锚点**：44.9.1 把 main_1.default.initialize(); 改成 initialize({，导致"无障碍树常驻"补丁被静默跳过。localize.js 已改为**双锚点兼容**。
+8. **占位符 bug**：'plan': 'plan'（译文与原文相同 → 永远不生效）已修为 '方案'。
+
+**翻译引擎能力升级**：
+- zh() 匹配优先级改为 MAP → DYNAMIC_MAP → REGEX_MAP → PREFIX_MAP，并让"含数字"的文本优先走正则，避免静态词条抢走动态部分。
+- 新增 `translateFragment()`：整句未命中时按分句切段逐段翻译，并对长短语做子串替换兜底。
+- 新增 `applyComposite()`：对无子元素的容器元素取 `textContent` 整体翻译，处理 React 把一句话拆到多个 <span> 的情况。
+- `beautifyRemain()` 扩展：中文星期、`ago`/`today`/`tomorrow`/`around`、<1m、st/nd/rd/th、AM/PM 转上午/下午、2h 30m/1d 2h 复合时长、以及 N projects/items/files/tasks/... 量词。
+
+**回归测试**：静态词条 90/90、动态句式 23/23 全部命中；部署后 6 个外壳文件补丁全部校验通过。
+
+**覆盖率**：从网页前端（含 JSX 文本节点与 `title:`/`label:`/`description:` 等对象键，含不带引号写法）提取 1567 条 UI 候选串，扣除 232 条仅出现在 VS Code 主题色选择器里的颜色描述后，可翻译文案 **1335 条**，实际覆盖 **1329 条 = 99.6%**。仅剩 `Project 4K`/`Google Chat`/`Google Chrome`/`Sample GDoc`/`Gemini Flash Next`（品牌/产品名）与 `Command Shift A`（快捷键标签），均属刻意保留。
+
+> 维护提示：本轮新增词条集中在 i18n-zh.js 末尾的几个 // —— ... —— 注释块内，便于日后审阅。
+
+### 第三轮追加（针对实机截图复查）
+
+实机逐页截图复查发现一批**设置卡片文案**此前未被提取到，根因是这些文案用的是**不带引号的对象键**：
+
+```js
+B.createElement(RP, {title:"Browser", description:"Configure built-in browser, ..."})
+```
+
+而首轮提取正则只匹配了 `"title":"..."` 这种带引号的写法，于是「应用 / 外观 / 浏览器 / 语音模式」四个设置页的描述句整批漏翻。本轮已修正提取规则并补齐 **104 条**（含 `Verbose→详细`、`Strong→高对比`、`Change…→更改…` 等选项值与按钮）。
+
+同时修掉两个引擎级缺陷：
+
+1. **删除"长词条子串替换"兜底** —— 它会在英文长句里挖出中文洞，产生 `The voice used in 语音模式. Powered by Gemini Live.` 这类中英混杂。React 拆句改由**片段级词条**（如 `Scan the code to open this device in` + `Remote Control` + `copy link`）逐节点覆盖，输出干净。
+2. **新增省略号变体兜底** —— 源码里常写 `"Change\u2026"`（运行时是 `…`），词表里写 `...` 会匹配失败。现在 `…`/`...` 会互相回退查找。
