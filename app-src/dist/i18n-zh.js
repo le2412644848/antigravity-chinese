@@ -1,12 +1,15 @@
 "use strict";
 /**
  * Antigravity 桌面端中文语言包（Electron 壳注入层）
- * 由 utils.js 在每个窗口 dom-ready 时注入渲染进程。
+ * 由 utils.js 在 Hub 页面每次 dom-ready 时注入渲染进程（原生菜单/对话框见 i18n-zh-main.js）。
  * 匹配规则（按优先级）：
- *   1. MAP 全等匹配（文本去首尾空格后与原文完全一致）
- *   2. REGEX_MAP 正则匹配（动态数字/百分比句式）
- *   3. PREFIX_MAP 前缀匹配（带动态时间尾部的句式）
- * 未收录文本保持原样。官方更新覆盖 app.asar 后重跑 一键汉化.cmd 即可。
+ *   1. MAP 全等匹配（文本去首尾空格后与原文完全一致；省略号 …/... 互通）
+ *   2. DYNAMIC_MAP 拼接句式（\u0001 代表运行时插入的变量）
+ *   3. REGEX_MAP 正则匹配（动态数字/时间句式）
+ *   4. PREFIX_MAP 前缀匹配（带动态时间尾部的句式）
+ *   5. 整句未命中时按分句逐段匹配
+ * 不翻译的区域：智能体回复/思考过程的 Markdown、用户消息、代码块、编辑器、终端、会话标题。
+ * 未收录文本保持原样。改完词表后可运行 node asar-tool/test.js 自检、node asar-tool/audit.js 查覆盖率。
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RENDERER_SCRIPT = void 0;
@@ -2869,6 +2872,520 @@ function agZhRenderer() {
             // —— Markdown 渲染说明 ——
         "Trust the input, enabling all HTML features such as \\url.": "信任输入内容，启用所有 HTML 特性（例如 \\url）。",
         "Render math in display mode, which puts the math in display style (so \\int and \\sum are large, for example), and centers the math on the page on its own line.": "以独立公式模式渲染数学公式，即使用 display 样式（例如 \\int 和 \\sum 会变大），并在页面中单独一行居中显示。",
+            // —— 2.34.0 补充词条（audit.js 审计补译） ——
+        "Agent can scroll on browser pages to access more content.": "智能体可以在浏览器页面中滚动以获取更多内容。",
+        "Agent can retrieve console logs from the browser and return it for further processing.": "智能体可以获取浏览器控制台日志并返回以供进一步处理。",
+        "Approve": "批准",
+        "Accept": "接受",
+        "Decline": "拒绝",
+        "Reject": "拒绝",
+        "Reject all": "全部拒绝",
+        "Deny with note": "拒绝并附说明",
+        "Add note": "添加说明",
+        "Customize Sidebar": "自定义侧栏",
+        "Sidebar": "侧栏",
+        "In chat": "在对话中",
+        "Manage": "管理",
+        "MCP": "MCP",
+        "MCP error": "MCP 错误",
+        "MCP server error": "MCP 服务器错误",
+        "Reconnect": "重新连接",
+        "Review contents": "查看内容",
+        "Add anyway": "仍然添加",
+        "Artifact": "产物",
+        "Commands outside sandbox": "沙箱外命令",
+        "Enable sandbox mode": "启用沙箱模式",
+        "Enable terminal sandbox": "启用终端沙箱",
+        "Connect to SSH Host…": "连接到 SSH 主机…",
+        "SSH Host…": "SSH 主机…",
+        "SSH Host": "SSH 主机",
+        "SSH host": "SSH 主机",
+        "SSH Config": "SSH 配置",
+        "SSH config:": "SSH 配置：",
+        "Stop SSH Server…": "停止 SSH 服务器…",
+        "Hidden hosts": "已隐藏的主机",
+        "No hosts in": "没有主机：",
+        "Couldn't load your SSH hosts": "无法加载你的 SSH 主机",
+        "Couldn't load your SSH hosts. You can still type one.": "无法加载你的 SSH 主机，你仍可以手动输入。",
+        "Enter [user@]host[:port], or pick a host from your SSH config.": "输入 [用户@]主机[:端口]，或从 SSH 配置中选择主机。",
+        "Controls how much time and quota the model spends reasoning before responding. Higher effort improves accuracy on hard problems, at the cost of slower responses and higher quota use.": "控制模型在回答前用于推理的时间和额度。投入越高，难题的准确率越高，但响应更慢、额度消耗更多。",
+        "Thinking effort": "思考强度",
+        "Curated sets of plugins for common workflows and roles.": "为常见工作流和角色精选的插件组合。",
+        "Discard comment draft": "放弃评论草稿",
+        "Resume comment draft": "继续编辑评论草稿",
+        "Resume 1 comment draft": "继续编辑 1 条评论草稿",
+        "Unsent draft": "未发送的草稿",
+        "1 Draft": "1 份草稿",
+        "FAQ": "常见问题",
+        "Filter and Sort": "筛选与排序",
+        "Filters": "筛选",
+        "Filter agents": "筛选智能体",
+        "Filter plugins": "筛选插件",
+        "Finish signing in to": "完成登录：",
+        "Idle Conversations": "空闲对话",
+        "Keybinding Scheme": "快捷键方案",
+        "VS Code Default": "VS Code 默认",
+        "VS Code Keyboard Shortcuts": "VS Code 键盘快捷方式",
+        "Antigravity (AGY) Style": "Antigravity (AGY) 风格",
+        "Choose between non-colliding VS Code defaults or standalone Antigravity chords.": "在不冲突的 VS Code 默认快捷键与独立的 Antigravity 组合键之间选择。",
+        "Manage your keybinding scheme and customize shortcuts in VS Code.": "在 VS Code 中管理快捷键方案并自定义快捷方式。",
+        "All active Antigravity shortcuts and user keybinding overrides are managed directly by VS Code.": "所有生效的 Antigravity 快捷键及用户自定义按键均直接由 VS Code 管理。",
+        "Customize Shortcuts": "自定义快捷键",
+        "Inspect live bindings or record custom key chords filtered to": "查看当前按键绑定或录制自定义组合键，筛选范围：",
+        "Last Activity": "最近活动",
+        "Layout": "布局",
+        "OK": "确定",
+        "Orchestrator": "编排器",
+        "Orchestrator Model": "编排器模型",
+        "Orchestrator Settings": "编排器设置",
+        "Executor Model": "执行器模型",
+        "Main Agent": "主智能体",
+        "Choose the models Orchestrator uses. A larger, smarter orchestrator model with a faster, cheaper executor gives high quality for fewer tokens.": "选择编排器使用的模型。搭配更大更聪明的编排器模型与更快更便宜的执行器模型，可以用更少的 token 获得高质量结果。",
+        "Plans the work, makes design decisions, and reviews the result. Pick a top-tier model. You can also pick one per conversation from the Orchestrator row in the model menu.": "负责规划工作、做出设计决策并审查结果。请选择顶级模型。也可以在模型菜单的“编排器”一行为每个对话单独选择。",
+        "Carries out the plan: searches, edits, builds, and tests. Pick a faster, cheaper model.": "负责执行计划：搜索、编辑、构建与测试。请选择更快、更便宜的模型。",
+        "Raw": "原始",
+        "Show Automation Conversations": "显示自动化对话",
+        "Show Plugin Conversations": "显示插件对话",
+        "Show or Hide Plugins": "显示或隐藏插件",
+        "Only Automations": "仅自动化",
+        "Stop all agents": "停止所有智能体",
+        "Stop this agent": "停止此智能体",
+        "Stop Task": "停止任务",
+        "Interrupt Agent": "中断智能体",
+        "Pause this agent; it keeps its place and streams. Resume to continue.": "暂停此智能体，它会保留当前进度与输出流，恢复后继续。",
+        "Resume this agent where it paused": "从暂停处恢复此智能体",
+        "Terminal command auto execution": "终端命令自动执行",
+        "Terminal commands": "终端命令",
+        "Terminal window": "终端窗口",
+        "Add Terminal": "添加终端",
+        "Attach terminal output": "附加终端输出",
+        "in a terminal": "在终端中",
+        "Toggle Virtual Machine": "切换虚拟机",
+        "Unread": "未读",
+        "Pinned": "已置顶",
+        "Pin / Unpin Conversation": "置顶 / 取消置顶对话",
+        "Verify that these licenses were provided by your administrator and that you trust the project ID before proceeding. Account activity and data may be logged by your organization.": "继续之前，请确认这些许可证由你的管理员提供，并且你信任该项目 ID。你的组织可能会记录账号活动和数据。",
+        ", then reopen this dialog.": "，然后重新打开此对话框。",
+        ", then turn it on.": "，然后将其开启。",
+        ", always on.": "，始终开启。",
+        "? This action cannot be undone.": "吗？此操作无法撤销。",
+        "? This removes it from your config directory.": "吗？这会将其从你的配置目录中移除。",
+        "? This will remove it from your MCP configuration.": "吗？这会将其从你的 MCP 配置中移除。",
+        ". Reload the window if a change does not take effect.": "。如果更改未生效，请重新加载窗口。",
+        ". You can control this from your settings at any point.": "。你可以随时在设置中更改。",
+        ". Your use is subject to the": "。你的使用须遵守",
+        ". It is not visible in the agent's sandbox and is shared across all your projects.": "。它在智能体沙箱中不可见，并在你的所有项目之间共享。",
+        ". If it isn't in the list, drag it in from the small window next to System Settings.": "。如果它不在列表中，请从“系统设置”旁的小窗口中把它拖进去。",
+        ". For non-corp passwords or SSH passphrases, allow the next prompt and re-run your command.": "。对于非公司密码或 SSH 口令，请允许下一次提示并重新运行命令。",
+        ". To add another account, go to the": "。如需添加其他账号，请前往",
+        "(empty)": "（空）",
+        "(excluding product analytics data)": "（不含产品分析数据）",
+        "(for example, passwords, messages, or credit cards).": "（例如密码、消息或信用卡信息）。",
+        "· estimated": "· 估算",
+        "• Aggregate cost across all subagents": "• 汇总所有子智能体的成本",
+        "• Includes nested subagent costs": "• 包含嵌套子智能体的成本",
+        "cumulative total for the conversation up to this point": "截至目前该对话的累计总量",
+        "+ Add branch policy": "+ 添加分支策略",
+        "+ Add Hook": "+ 添加钩子",
+        "+ Add issue policy": "+ 添加议题策略",
+        "+ Add Organization policy": "+ 添加组织策略",
+        "+ Add pull request policy": "+ 添加拉取请求策略",
+        "+ Add Repository policy": "+ 添加仓库策略",
+        "+ Add workflow run policy": "+ 添加工作流运行策略",
+        "Each rule lets the agent run the listed workflow files on the listed refs — each a comma-separated list like ci.yml, deploy.yml and main, dev (glob patterns like fix-* allowed), or * for all. Both fields must be set for a rule to grant anything.": "每条规则允许智能体在所列引用上运行所列工作流文件——两者均为逗号分隔的列表，如 ci.yml, deploy.yml 与 main, dev（支持 fix-* 这样的通配符），或用 * 表示全部。两个字段都填写后规则才会生效。",
+        "e.g. ci.yml,deploy.yml or *": "例如 ci.yml,deploy.yml 或 *",
+        "e.g. main,dev or *": "例如 main,dev 或 *",
+        "e.g. google or *": "例如 google 或 *",
+        "Grant repository access": "授予仓库访问权限",
+        "Validated with GitHub and stored in": "已通过 GitHub 验证并保存在",
+        "GitHub: not signed in": "GitHub：未登录",
+        "Create a token": "创建令牌",
+        "⚠️ Failed to render LaTeX:": "⚠️ LaTeX 渲染失败：",
+        "⚠️ Failed to render Mermaid diagram:": "⚠️ Mermaid 图表渲染失败：",
+        "7 days": "7 天",
+        "14 days": "14 天",
+        "21 days": "21 天",
+        "Days": "天",
+        "Any time": "任意时间",
+        "Day of the month": "每月几号",
+        "Day of the week": "星期几",
+        "2x playback speed": "2 倍速播放",
+        "A chunk is a section of the page. Long pages are chunked so that only the sections that are relevant to your query are read.": "分块是页面的一个片段。长页面会被分块，只读取与你的问题相关的部分。",
+        "Long pages like this one will be broken down into outlines and read as needed. Read more at our": "像这样的长页面会被拆分为大纲并按需读取。详情请参阅我们的",
+        "A group with this name already exists.": "已存在同名分组。",
+        "already exists.": "已存在。",
+        "already exists for this": "已存在于此",
+        "A new version is available.": "有新版本可用。",
+        "Access restricted": "访问受限",
+        "Blocked by organization policy": "已被组织策略阻止",
+        "Add New Handler to": "添加新的处理程序到",
+        "Handler #": "处理程序 #",
+        "AI coding agents are known to have certain security risks, including autonomous code execution, data exfiltration, prompt injection and supply chain risks. Ensure that you monitor and verify all actions taken by the agent.": "AI 编程智能体存在一定的安全风险，包括自主执行代码、数据外泄、提示词注入和供应链风险。请务必监控并核实智能体执行的所有操作。",
+        "AI Credits are used when you've exceeded your model quota. Keep track of your current AI Credits in the": "超出模型额度后将使用 AI 积分。你可以在以下位置查看当前 AI 积分：",
+        "All agents": "所有智能体",
+        "Allow Google to collect and use your Interactions data, subject to the": "允许 Google 收集并使用你的交互数据，须遵守",
+        "Allow Next Non-Corp Prompt": "允许下一次非公司密码提示",
+        "Allowed Domains": "允许的域名",
+        "Credentials are only sent to the domains listed.": "凭据仅会发送到所列域名。",
+        "Always open": "始终打开",
+        "An agent is using the built-in browser. Clearing its data signs the agent out of sites and may interrupt its task.": "有智能体正在使用内置浏览器。清除其数据会使智能体退出各网站的登录，并可能中断其任务。",
+        "and add it again.": "并重新添加。",
+        "Are you sure you want to delete the": "确定要删除",
+        "Are you sure you want to delete this side question? This action cannot be undone.": "确定要删除这个旁路提问吗？此操作无法撤销。",
+        "This side question isn't available in this conversation.": "此旁路提问在当前对话中不可用。",
+        "Side Question Selection": "旁路提问选区",
+        "Insert into main conversation": "插入到主对话",
+        "The main conversation's input isn't available right now.": "主对话的输入框当前不可用。",
+        "Ask to retry": "请求重试",
+        "At Mention Code Block": "@ 提及代码块",
+        "at ref": "位于引用",
+        "Attackers might be trying to steal your information from": "攻击者可能正试图窃取你在以下网站的信息：",
+        "Authorization code": "授权码",
+        "Paste the code shown after you sign in.": "粘贴登录后显示的代码。",
+        "Sign in in your browser, then paste the authorization code shown on the callback page.": "在浏览器中登录，然后粘贴回调页面上显示的授权码。",
+        "Trouble signing in? Enter authorization code": "登录遇到问题？输入授权码",
+        "Waiting for you to finish signing in…": "正在等待你完成登录…",
+        "Sign-in failed:": "登录失败：",
+        "Not signed in": "未登录",
+        "Auto-assignment not configured": "未配置自动分配",
+        "Automated safeguards help to protect your conversations from insecure or unsafe content. That being said, users should be aware of potential agentic risks, including data exfiltration.": "自动防护机制有助于保护你的对话免受不安全内容的影响。尽管如此，用户仍应注意潜在的智能体风险，包括数据外泄。",
+        "automation and can only be deleted by deleting that automation.": "自动化，只能通过删除该自动化来删除。",
+        "Avoid uploading highly sensitive data and verify actions taken by your agent. Make sure you have the": "请避免上传高度敏感的数据，并核实智能体执行的操作。请确保你拥有",
+        "necessary rights": "必要的权利",
+        "Background tasks and terminals agents left running, across all conversations.": "所有对话中智能体留下仍在运行的后台任务和终端。",
+        "Bot": "机器人",
+        "Browse Connectors": "浏览连接器",
+        "Browse MCP resources": "浏览 MCP 资源",
+        "Browse rules": "浏览规则",
+        "View MCP servers": "查看 MCP 服务器",
+        "Browser control is gated in remote sessions.": "远程会话中的浏览器控制受到限制。",
+        "Browsing Data": "浏览数据",
+        "Browsing history": "浏览历史",
+        "Visited URLs and autocomplete suggestions.": "访问过的网址和自动补全建议。",
+        "Cookies and other site data": "Cookie 及其他网站数据",
+        "Cookies by Site": "按网站管理 Cookie",
+        "Sites with cookies": "存有 Cookie 的网站",
+        "No sites have cookies in the built-in browser.": "内置浏览器中没有网站存有 Cookie。",
+        "Search sites": "搜索网站",
+        "Search sites...": "搜索网站...",
+        "Cookies the built-in browser stores for each site. Deleting a site's cookies usually signs you out of it. Other site data (local storage, IndexedDB, cache) is cleared only by Browsing Data → Clear.": "内置浏览器为每个网站保存的 Cookie。删除某网站的 Cookie 通常会使你退出该网站。其他网站数据（本地存储、IndexedDB、缓存）只能通过“浏览数据 → 清除”来清理。",
+        "Cookies, site storage and cache. Signs you out of all sites in the built-in browser and reloads its open tabs.": "Cookie、网站存储与缓存。会使你退出内置浏览器中的所有网站，并重新加载已打开的标签页。",
+        "Clear Browsing Data?": "清除浏览数据？",
+        "Clear history, cookies and site data from the built-in browser, or manage cookies for each site.": "清除内置浏览器的历史记录、Cookie 和网站数据，或按网站管理 Cookie。",
+        "Choose what to clear from the built-in browser. It can't be undone.": "选择要从内置浏览器中清除的内容。此操作无法撤销。",
+        "Clearing cookies and site data for": "正在清除以下网站的 Cookie 和数据：",
+        "Could not clear site data for": "无法清除以下网站的数据：",
+        "Site data cleared for": "已清除以下网站的数据：",
+        "Couldn't clear browsing data. Try again.": "无法清除浏览数据，请重试。",
+        "Couldn't delete cookies for": "无法删除以下网站的 Cookie：",
+        "Couldn't load cookies.": "无法加载 Cookie。",
+        "Category": "类别",
+        "Check that the microphone is unmuted and the right input device is selected.": "请检查麦克风是否未静音，并已选择正确的输入设备。",
+        "Voice dictation unavailable": "语音听写不可用",
+        "Stop transcription": "停止转写",
+        "Voices": "音色",
+        "Checking…": "正在检查…",
+        "Installing": "正在安装",
+        "Installed separately": "单独安装",
+        "Searching": "正在搜索",
+        "Stopping…": "正在停止…",
+        "Zipping": "正在压缩",
+        "Resolving link…": "正在解析链接…",
+        "Starting the conversation…": "正在开始对话…",
+        "Importing shared conversation...": "正在导入共享的对话...",
+        "Choose File…": "选择文件…",
+        "Choose which key sends a message in the chat composer.": "选择在对话输入框中用哪个键发送消息。",
+        "Enter to send": "Enter 发送",
+        "Enter always submits. This adds a second shortcut.": "Enter 始终会提交，这里是额外添加的第二个快捷键。",
+        "Submit Prompt (Alternate to Enter)": "提交提示（Enter 的替代键）",
+        "Messages now send immediately. Configure in": "现在消息会立即发送。可在以下位置配置：",
+        "Instead of queueing, try asking the agent to do something after the current task.": "与其排队，不如让智能体在当前任务完成后再做某件事。",
+        "Code": "代码",
+        "Color": "颜色",
+        "Icon": "图标",
+        "Command prompt": "命令提示",
+        "Command setup script": "命令初始化脚本",
+        "Comments (": "评论 (",
+        "No comments yet": "暂无评论",
+        "Reply": "回复",
+        "Computer": "电脑",
+        "Configure allowed and denied URLs for the browser subagent (invoked with /browser). Requires": "为浏览器子智能体（通过 /browser 调用）配置允许和禁止的网址。需要",
+        "Connect your account to browse": "连接你的账号以浏览",
+        "Continue Task →": "继续任务 →",
+        "Conversation is not open in this Hub window": "该对话未在此 Hub 窗口中打开",
+        "Copy as Markdown": "复制为 Markdown",
+        "Could not load": "无法加载",
+        "Could not load the app view:": "无法加载应用视图：",
+        "Couldn't connect": "无法连接",
+        "Couldn't connect to": "无法连接到",
+        "Couldn't search files": "无法搜索文件",
+        "Couldn't start the coordinator:": "无法启动协调器：",
+        "Couldn't switch accounts:": "无法切换账号：",
+        "To switch accounts, sign out in the": "如需切换账号，请在以下位置退出登录：",
+        "Custom models are only supported on Linux machines.": "自定义模型仅支持 Linux 机器。",
+        "Customize your experience across the agent, plugins, and product from the settings and marketplace. We won’t show you ads or let advertisers influence what": "通过设置和市场自定义你在智能体、插件和产品中的体验。我们不会向你展示广告，也不会让广告商影响",
+        "Default workspace VCS": "默认工作区版本控制系统",
+        "Disabling or removing this bundle doesn't affect it.": "停用或移除此捆绑包不会影响它。",
+        "No bundles available.": "没有可用的捆绑包。",
+        "Review bundle before adding": "添加前查看捆绑包",
+        "Disk is full. Search will no longer match in conversation bodies until you clear up space and restart.": "磁盘已满。在你清理空间并重启之前，搜索将无法匹配对话正文。",
+        "Docs, Sheets, Slides, and folders": "文档、表格、幻灯片和文件夹",
+        "Empty table": "空表格",
+        "Enable Browser Agent": "启用浏览器智能体",
+        "Enable this plugin to manage its accounts.": "启用此插件以管理其账号。",
+        "Services this plugin connects to on your behalf.": "此插件代表你连接的服务。",
+        "Suggested plugin:": "推荐插件：",
+        "UI plugins": "界面插件",
+        "No plugins available": "没有可用的插件",
+        "Plugins Options": "插件选项",
+        "Plugins are packaged collections of skills and MCPs to help the Agent": "插件是打包好的技能与 MCP 集合，用于帮助智能体",
+        "Entering your corp password in the web terminal triggers a Chrome Password Alert (Watchword) forced password reset, so this prompt was automatically cancelled.": "在网页终端中输入公司密码会触发 Chrome 密码警报（Watchword）强制重置密码，因此已自动取消此提示。",
+        "Expand": "展开",
+        "Expired · Action not taken": "已过期 · 未执行操作",
+        "Failed to clone project locally": "无法在本地克隆项目",
+        "Failed to open MCP config file": "无法打开 MCP 配置文件",
+        "Failed to send command input": "无法发送命令输入",
+        "Failed to unarchive local project": "无法取消归档本地项目",
+        "File access rules": "文件访问规则",
+        "Network access rules": "网络访问规则",
+        "File reads": "文件读取",
+        "File writes": "文件写入",
+        "Files to edit:": "要编辑的文件：",
+        "Files, folders, and repositories you connect are accessible to your agent in this project, including during background or scheduled runs.": "你连接的文件、文件夹和仓库可供本项目中的智能体访问，包括后台运行或定时运行期间。",
+        "Here's how uploaded files, attachments, and connected resources work in your cloud environment": "以下是上传文件、附件及已连接资源在云端环境中的工作方式",
+        "Flags come from Mendel experiments and from the host app. Overrides are local to this browser and change how every feature gated on the flag resolves. Some features are only read at startup — reload the window if a change does not take effect.": "标志来自 Mendel 实验和宿主应用。覆盖值仅对当前浏览器生效，并会改变所有受该标志控制的功能。部分功能只在启动时读取——如果更改未生效，请重新加载窗口。",
+        "Not referenced by any feature (": "未被任何功能引用 (",
+        "Preview disabled (experiment off)": "预览已停用（实验未开启）",
+        "Try out early-stage features before they ship. These may be changed or removed at any time. These features are experimental, and we make no guarantees about performance or functionality.": "抢先体验尚未正式发布的早期功能。这些功能随时可能更改或移除，属于实验性质，我们不对其性能或功能作任何保证。",
+        "For Antigravity Business consumption options, see": "关于 Antigravity 商业版的用量方案，请参阅",
+        "Force": "强制",
+        "from AI Studio": "来自 AI Studio",
+        "Go to the machine you are controlling and quit Antigravity. It installs pending updates the next time it starts.": "请前往被控制的机器并退出 Antigravity，它会在下次启动时安装待处理的更新。",
+        "Google Antigravity Terms of Service": "Google Antigravity 服务条款",
+        "Privacy Notice": "隐私声明",
+        "Prohibited Use Policy": "禁止使用政策",
+        "Google Cloud Project ID": "Google Cloud 项目 ID",
+        "Hide": "隐藏",
+        "in Browser": "在浏览器中",
+        "In System Settings, click": "在“系统设置”中，点击",
+        "In System Settings, turn on": "在“系统设置”中，开启",
+        "in the top menu.": "（位于顶部菜单）。",
+        "Include at least one positive": "至少包含一个正向条件",
+        "Input Box": "输入框",
+        "Intended primarily for previewing local development servers (e.g.,": "主要用于预览本地开发服务器（例如",
+        "Jump to Next Prompt": "跳到下一条提示",
+        "Jump to Previous Prompt": "跳到上一条提示",
+        "learn more": "了解更多",
+        "Learn more by visiting our": "了解更多，请访问我们的",
+        "troubleshooting guide": "故障排查指南",
+        "Let the agent open URLs, read web pages, and interact with browser content. This gives the agent access to important (and often critical) knowledge and methods of validation, but any browser integration does increase exposure to external malicious parties for security exploits.": "允许智能体打开网址、阅读网页并与浏览器内容交互。这让智能体能够获取重要（且往往关键）的知识与验证手段，但任何浏览器集成都会增加被外部恶意方利用安全漏洞的风险。",
+        "links without asking": "链接，无需询问",
+        "Manual Order": "手动排序",
+        "Many external websites (such as Google Search, GitHub, or Wikipedia) restrict iframe embedding via": "许多外部网站（如 Google 搜索、GitHub 或维基百科）会通过以下方式限制 iframe 嵌入：",
+        "This page is taking longer than expected to load, or it may be blocking embedded views (via X-Frame-Options or CSP).": "此页面加载时间超出预期，或者它可能阻止了嵌入式视图（通过 X-Frame-Options 或 CSP）。",
+        "Match Whole Word (ab)": "全字匹配 (ab)",
+        "Move Down": "下移",
+        "Move Up": "上移",
+        "Needs Input": "需要输入",
+        "New conversation button": "新建对话按钮",
+        "No compatible devices found.": "未找到兼容的设备。",
+        "No content available for this resource": "此资源没有可用内容",
+        "No longer available": "已不可用",
+        "No matching resources found.": "未找到匹配的资源。",
+        "No recent downloads": "最近没有下载",
+        "No sign-in required. This app is ready to use.": "无需登录，此应用可以直接使用。",
+        "No sites match “": "没有匹配的网站：“",
+        "Only applies when grouped by status": "仅在按状态分组时生效",
+        "Open Google Chrome on the machine running Antigravity.": "在运行 Antigravity 的机器上打开 Google Chrome。",
+        "Open on another device": "在其他设备上打开",
+        "Open on phone": "在手机上打开",
+        "Pick up this remote conversation on your phone or in any browser. Scan the QR code or open the link below.": "在手机或任意浏览器中继续这个远程对话。扫描二维码或打开下方链接。",
+        "Optional boolean filter": "可选的布尔筛选条件",
+        "Organization MCP Allowlist (Read-Only)": "组织 MCP 允许列表（只读）",
+        "Page": "页",
+        "Parsing error:": "解析错误：",
+        "Permanently delete your remote conversations, projects, scheduled tasks, connected plugins and settings. Data in the desktop app and your Google account are not affected.": "永久删除你的远程对话、项目、定时任务、已连接插件和设置。桌面应用中的数据和你的 Google 账号不受影响。",
+        "This permanently deletes all of your Remote Agents conversations, projects, scheduled tasks, connected plugins and settings, and stops any running remote agents. It can't be undone. Data in the desktop app and your Google account are not affected, and you can keep using Remote Agents afterwards.": "这会永久删除你所有的远程智能体对话、项目、定时任务、已连接插件和设置，并停止所有正在运行的远程智能体。此操作无法撤销。桌面应用中的数据和你的 Google 账号不受影响，之后你仍可继续使用远程智能体。",
+        "Permission approval scope": "权限批准范围",
+        "Permission preset": "权限预设",
+        "Security preset": "安全预设",
+        "Runtime permission": "运行时权限",
+        "Please describe the feature you'd like to see. The more detailed the requirements, the easier it will be for our team to incorporate your ideas. Some helpful information includes:": "请描述你希望看到的功能。需求越详细，我们的团队就越容易采纳你的想法。以下信息会有所帮助：",
+        "Please describe your auth or billing issue. More details will help our support team resolve your issue quicker. Some helpful information includes:": "请描述你遇到的登录或计费问题。提供更多细节可以帮助支持团队更快解决问题。以下信息会有所帮助：",
+        "Use this form if you cannot connect to Remote Control. If your instance is already connected and you are experiencing issues in the browser, report directly from the Remote Control web page so that relevant logs are included. Some helpful information includes:": "如果无法连接远程控制，请使用此表单。如果你的实例已连接、但在浏览器中遇到问题，请直接在远程控制网页上反馈，以便附带相关日志。以下信息会有所帮助：",
+        "What functionality you expect your account tier to have available that is missing": "你认为你的账号等级应有但缺失的功能",
+        "What is missing in your workflow": "你的工作流中缺少什么",
+        "What quota or feature is being incorrectly limited": "哪些额度或功能被错误地限制了",
+        "What you would like to see to address this gap in your workflow": "你希望通过什么来弥补工作流中的这一不足",
+        "Whether it never connects or is intermittent/flaky": "是完全无法连接，还是时断时续/不稳定",
+        "Please verify your account to continue using": "请验证你的账号以继续使用",
+        "Please verify your account, then sign in again to continue. Learn more by visiting our": "请验证你的账号，然后重新登录以继续。了解更多，请访问我们的",
+        "Sorry, this account is ineligible to use": "抱歉，此账号不符合使用条件：",
+        "Press": "按",
+        "Previous": "上一个",
+        "Previous chats live under a deprecated Google3 Project": "以前的对话位于已弃用的 Google3 项目下",
+        "Proceed to": "继续前往",
+        "Readme": "自述文件",
+        "References": "引用",
+        "Relaunch ↻": "重新启动 ↻",
+        "Reopen ↗": "重新打开 ↗",
+        "Settings ↗": "设置 ↗",
+        "Remote Control isn't active on this instance. Enable it in": "此实例未启用远程控制。请在以下位置启用：",
+        "Stream and control": "串流与控制",
+        "Remove from Recent": "从最近使用中移除",
+        "Repo": "仓库",
+        "Resources": "资源",
+        "Response actions": "回复操作",
+        "Sample GDoc": "Sample GDoc",
+        "Screen locked: agents can't use this Mac until you unlock it": "屏幕已锁定：解锁前智能体无法使用这台 Mac",
+        "Screenshot must be under 10 MB": "截图必须小于 10 MB",
+        "Search conversations": "搜索对话",
+        "Search failed": "搜索失败",
+        "Section header:": "章节标题：",
+        "See all (": "查看全部 (",
+        "Select one or more options": "选择一个或多个选项",
+        "Send": "发送",
+        "Set up my environment": "设置我的环境",
+        "Settings -": "设置 -",
+        "Show 10": "显示 10 项",
+        "Show 5": "显示 5 项",
+        "Show Details": "显示详情",
+        "Show more (": "显示更多 (",
+        "Show submitted (": "显示已提交 (",
+        "Sign up for newsletters, tips and tricks, and other notifications about": "订阅新闻通讯、使用技巧及其他相关通知：",
+        "Skipped": "已跳过",
+        "Start Best-of-": "开始多路优选：",
+        "Successfully imported project:": "已成功导入项目：",
+        "Switch To": "切换到",
+        "Switch to This Computer": "切换到这台电脑",
+        "System default app": "系统默认应用",
+        "Telemetry is turned off for your account.": "你的账号已关闭遥测。",
+        "Tell the agent what to do instead...": "告诉智能体改为做什么...",
+        "Text Selection": "文本选择",
+        "Text selection is paused for smoother viewing. Search, comments, and annotations still work. Use the toolbar text button when selection is needed.": "为了更流畅的浏览，已暂停文本选择。搜索、评论和批注仍可使用。需要选择文本时，请使用工具栏中的文本按钮。",
+        "The agent will wait for you to install the browser extension.": "智能体会等待你安装浏览器扩展。",
+        "The breakdown below shows token usage from customizations like rules, skills, and MCP. If a budget is exceeded, large rules are demoted to path pointers and large customizations are excluded automatically.": "下方明细显示了规则、技能和 MCP 等自定义项的 token 用量。如果超出预算，大型规则会被降级为路径指针，大型自定义项会被自动排除。",
+        "The conversation was compacted to fit within the context window.": "对话已被压缩以适应上下文窗口。",
+        "The conversation was compacted while generating this response.": "生成此回复时对话已被压缩。",
+        "The Hub sent an unexpected response.": "Hub 返回了意外的响应。",
+        "There are currently no Build with": "目前还没有 Build with",
+        "to add to Agent": "以添加到智能体",
+        "to exit": "以退出",
+        "to upload": "以上传",
+        "Toggle Word Wrap": "切换自动换行",
+        "tokens (": "token (",
+        "Tree": "树",
+        "Unknown Option:": "未知选项：",
+        "Use": "使用",
+        "Use Default": "使用默认值",
+        "UTC": "UTC",
+        "Validate": "验证",
+        "View archived in the sidebar (![tune](icon://tune) Customize Sidebar).": "可在侧栏中查看已归档内容（![tune](icon://tune) 自定义侧栏）。",
+        "Waiting for the agents’ windows…": "正在等待智能体的窗口…",
+        "Web (desktop, remote agents, PWA)": "网页（桌面端、远程智能体、PWA）",
+        "Web (desktop, remote agents)": "网页（桌面端、远程智能体）",
+        "Web (mobile, remote agents, PWA)": "网页（移动端、远程智能体、PWA）",
+        "Web (mobile, remote agents)": "网页（移动端、远程智能体）",
+        "Web search prioritized results from": "网页搜索优先显示来自以下来源的结果：",
+        "When Turbo mode is on, the agent will automatically capture screenshots in the Browser without explicit user input. You can toggle this setting in Antigravity's settings.": "开启 Turbo 模式后，智能体会在浏览器中自动截图，无需用户明确操作。你可以在 Antigravity 设置中切换此选项。",
+        "Workflows are changing on October 19th—stay tuned for updates. You can use the agent to migrate your workflows.": "工作流将于 10 月 19 日起发生变化，敬请关注后续更新。你可以让智能体帮你迁移工作流。",
+        "Working directory:": "工作目录：",
+        "Working Directory:": "工作目录：",
+        "You can prompt the model to try again or start a new conversation if the error persists.": "你可以让模型重试；如果错误持续出现，请开始新的对话。",
+        "Your agent’s ability to execute commands is also controlled by enterprise security policies.": "智能体执行命令的能力还受企业安全策略控制。",
+        "Eye": "眼睛",
+        "Flask": "烧瓶",
+        "Gauge": "仪表盘",
+        "Radar": "雷达",
+        "Robot": "机器人",
+        "Shield": "盾牌",
+        "Sliders": "滑块",
+        "Sparkles": "闪光",
+        "Speedometer": "速度表",
+        "Wrench": "扳手",
+        "Finder": "访达",
+        "Select Sidebar Item 1": "选择侧栏第 1 项",
+        "Select Sidebar Item 2": "选择侧栏第 2 项",
+        "Select Sidebar Item 3": "选择侧栏第 3 项",
+        "Select Sidebar Item 4": "选择侧栏第 4 项",
+        "Select Sidebar Item 5": "选择侧栏第 5 项",
+        "Select Sidebar Item 6": "选择侧栏第 6 项",
+        "Select Sidebar Item 7": "选择侧栏第 7 项",
+        "Select Sidebar Item 8": "选择侧栏第 8 项",
+        "Select Sidebar Item 9": "选择侧栏第 9 项",
+        "Boolean AND, OR, and negation": "布尔与、或、非",
+        "Equality and list membership (e.g.": "相等判断与列表成员判断（例如",
+        "Substring or list check (e.g.": "子串或列表检查（例如",
+        "Match when the principal equals any listed username or belongs to any listed mdb/ group.": "当主体等于所列任一用户名或属于所列任一 mdb/ 组时匹配。",
+        "— narrow matched events by status, priority, or event details": "——按状态、优先级或事件详情缩小匹配的事件范围",
+        "Gruvbox Material": "Gruvbox Material",
+        "One Dark Pro": "One Dark Pro",
+        "One Light": "One Light",
+        "Solarized Dark": "Solarized Dark",
+        "Solarized Light": "Solarized Light",
+        "Tokyo Night": "Tokyo Night",
+        "PID": "PID",
+        "CSP": "CSP",
+        "X-Frame-Options": "X-Frame-Options",
+        "GMT": "GMT",
+        "Hub": "Hub",
+        ", choose": "，选择",
+        ", click": "，点击",
+        ", then": "，然后",
+        ", open Chrome": "，打开 Chrome",
+        "), use an external SSH session": "），请使用外部 SSH 会话",
+        ". If a page fails to load, use the": "。如果页面加载失败，请使用",
+        ". Active workspace URI:": "。当前工作区 URI：",
+        ". Applying or clearing reloads the window. Suggestions come from your recent workspaces and the folders of your existing projects and their environments": "。应用或清除会重新加载窗口。建议来自你最近的工作区以及现有项目及其环境所在的文件夹",
+        "(Specific to this client's truncation and pagination)": "（特定于此客户端的截断与分页方式）",
+        "— specify at least one user, team, component, or resource (joined with": "——至少指定一个用户、团队、组件或资源（连接方式：",
+        // 2.34.0 对话步骤行：前缀动词（步骤行由「前缀 + 内容」两个独立元素组成）与步骤组摘要
+        "Ran": "运行了",
+        "Analyzed": "分析了",
+        "Analyzing": "正在分析",
+        "Edited": "编辑了",
+        "edited": "编辑了",
+        "Editing": "正在编辑",
+        "Creating": "正在创建",
+        "Read": "读取",
+        "Reading": "正在读取",
+        "Searched": "搜索了",
+        "Explored": "探索了",
+        "Exploring": "正在探索",
+        "Viewed": "查看了",
+        "Viewing": "正在查看",
+        "Scrolled": "滚动了",
+        "Clicked": "点击了",
+        "Fetched": "获取了",
+        "Browsed": "浏览了",
+        "Listed": "列出了",
+        "Rejected": "已拒绝",
+        "Interrupted": "已中断",
+        "Working": "工作中",
+        "Thought Process": "思考过程",
+        "Running command": "正在运行命令",
+        "Analyzed Task Log": "分析了任务日志",
+        "Analyzing Task Log": "正在分析任务日志",
+        "Used MCP tool": "使用了 MCP 工具",
+        "Generic Tool": "通用工具",
+        "Unknown file edit": "未知的文件编辑",
+        "No browser pages open": "没有打开的浏览器页面",
+        "Explored files": "探索了文件",
+        "Explored file": "探索了文件",
+        "Explored artifacts": "探索了产物",
+        "Explored artifact": "探索了产物",
+        "Ran command": "运行了命令",
+        "Ran commands": "运行了命令",
+        "ran command": "运行了命令",
+        "ran commands": "运行了命令",
+        "Edited files": "编辑了文件",
+        "Edited file": "编辑了文件",
+        "edited files": "编辑了文件",
+        "edited file": "编辑了文件",
+        "Edited artifacts": "编辑了产物",
+        "Edited artifact": "编辑了产物",
+        "edited artifacts": "编辑了产物",
+        "edited artifact": "编辑了产物",
     };
     // 动态句式（正则，$1 引用捕获组）
     var REGEX_MAP = [
@@ -2910,6 +3427,8 @@ function agZhRenderer() {
         [/^Every hour at :(\d+)$/, '每小时的第 $1 分钟'],
         [/^Every hour$/, '每小时'],
         [/^Every (day|weekday|week)$/, '每$1'],
+        [/^Proceed with implementation plan and (\d+) comments?$/, '按实施计划继续（附 $1 条评论）'],
+        [/^(\d+) messages? in queue$/, '队列中有 $1 条消息'],
         [/^(\d{1,2}):(\d{2})\s*([AP])\.?M\.?$/i, function (m, h, mi, ap) { return (ap.toUpperCase() === 'A' ? '上午 ' : '下午 ') + h + ':' + mi; }],
     ];
     // 动态时间句式（前缀匹配，尾部时间自动美化）
@@ -3023,13 +3542,248 @@ function agZhRenderer() {
         ['Uploading \u0001', '正在上传 \u0001'],
         ['Loading \u0001', '正在加载 \u0001'],
         ['Saving \u0001', '正在保存 \u0001'],
+        // —— 2.34.0 补充（第三项：1 = 插入值原样保留，不做时间/量词美化，用于路径、命令、名称等；2 = 插入值是界面名词，仅按 MAP 精确翻译） ——
+        ['Thought for \u0001s', '思考了 \u0001 秒', 1],
+        ['Thinking for \u0001s', '已思考 \u0001 秒', 1],
+        ['Still thinking, \u0001 seconds', '仍在思考，已 \u0001 秒', 1],
+        ['Using browser \u00b7 \u0001 (\u0001s)', '正在使用浏览器 · \u0001（\u0001 秒）', 1],
+        ['Using browser \u00b7 \u0001', '正在使用浏览器 · \u0001', 1],
+        ['Using browser (\u0001s)', '正在使用浏览器（\u0001 秒）', 1],
+        ['Searched for "\u0001"', '搜索了“\u0001”', 1],
+        ['Searched for files: \u0001', '搜索了文件：\u0001', 1],
+        ['Code search: "\u0001"', '代码搜索：“\u0001”', 1],
+        ['Internal search: "\u0001"', '内部搜索：“\u0001”', 1],
+        ['Listed directory \u0001', '列出了目录 \u0001', 1],
+        ['Browser task: "\u0001"', '浏览器任务：“\u0001”', 1],
+        ['Opened browser: \u0001', '打开了浏览器：\u0001', 1],
+        ['Searched web: "\u0001"', '搜索了网页：“\u0001”', 1],
+        ['Invoked subagent: \u0001', '调用了子智能体：\u0001', 1],
+        ['Ran command: \u0001 (`\u0001`)', '运行了命令：\u0001（`\u0001`）', 1],
+        ['Ran command: `\u0001`', '运行了命令：`\u0001`', 1],
+        ['Used tool: \u0001', '使用了工具：\u0001', 1],
+        ['Waiting for command completion (up to \u0001 seconds)', '正在等待命令完成（最多 \u0001 秒）', 1],
+        ['Waiting for \u0001 timers', '正在等待 \u0001 个计时器', 1],
+        ['Waiting for \u0001', '正在等待 \u0001', 1],
+        ['Wants to run: \u0001', '想要运行：\u0001', 1],
+        ['Showing latest \u0001 browser steps', '显示最近 \u0001 个浏览器步骤', 1],
+        ['Model unavailable, retrying in \u0001s\u0001', '模型不可用，\u0001 秒后重试\u0001', 1],
+        ['Model unavailable, retrying\u0001', '模型不可用，正在重试\u0001', 1],
+        ['Connecting to \u0001\u2026', '正在连接到 \u0001\u2026', 1],
+        ['Connected to \u0001', '已连接到 \u0001', 1],
+        ['Process exited with code \u0001.', '进程已退出，退出码 \u0001。', 1],
+        ['Exited with code \u0001.', '已退出，退出码 \u0001。', 1],
+        ['Timed out (\u0001ms)', '已超时（\u0001 毫秒）', 1],
+        ['Error while \u0001', '执行 \u0001 时出错', 1],
+        ['Unfold lines \u0001-\u0001', '展开第 \u0001-\u0001 行', 1],
+        ['Fold lines \u0001-\u0001', '折叠第 \u0001-\u0001 行', 1],
+        ['Save rule to always allow \u0001?', '保存规则以始终允许 \u0001？', 1],
+        ['Sign in to use \u0001!', '登录以使用 \u0001！', 1],
+        ['Sign in to \u0001 remotely', '远程登录 \u0001', 1],
+        ['Sign in to \u0001', '登录 \u0001', 1],
+        ['Sign in from the \u0001 panel.', '请在 \u0001 面板中登录。', 1],
+        ['Failed to create directory \u0001: \u0001', '创建目录 \u0001 失败：\u0001', 1],
+        ['Failed to create project: \u0001', '创建项目失败：\u0001', 1],
+        ['Failed to create \u0001', '创建 \u0001 失败', 1],
+        ['Add bundle \u0001', '添加捆绑包 \u0001', 1],
+        ['\u0001 is no longer available. Runs use \u0001 instead.', '\u0001 已不可用，运行将改用 \u0001。', 1],
+        ['Failed to open workspace: \u0001', '打开工作区失败：\u0001', 1],
+        ['More actions for \u0001', '\u0001 的更多操作', 2],
+        ['More options for \u0001', '\u0001 的更多选项', 2],
+        ['More for \u0001', '\u0001 的更多内容', 1],
+        ['\u0001 Sends immediately', '\u0001 立即发送', 1],
+        ['\u0001 Queues after the turn', '\u0001 本轮结束后排队发送', 1],
+        ['\u0001 On empty prompt, sends next in queue', '\u0001 输入为空时发送队列中的下一条', 1],
+        ['Exceeded the customization token budget (\u0001 tokens) and was excluded from context.', '超出自定义项 token 预算（\u0001 个 token），已从上下文中排除。', 1],
+        ['Exceeded the rules token budget. Full rule content (\u0001 tokens) was replaced with a lightweight file-path pointer in context.', '超出规则 token 预算。完整规则内容（\u0001 个 token）在上下文中已替换为轻量的文件路径指针。', 1],
+        ['All tools in this MCP server (\u0001 tokens) exceeded the customization budget and were excluded from context.', '此 MCP 服务器的所有工具（\u0001 个 token）超出自定义预算，已从上下文中排除。', 1],
+        ['Cannot add folder: "\u0001" is not a valid folder location.', '无法添加文件夹：“\u0001”不是有效的文件夹位置。', 1],
+        ['Playback speed \u0001x', '播放速度 \u0001x', 1],
+        ['Enlarged media: \u0001', '放大的媒体：\u0001', 1],
+        ['Open in \u0001', '在 \u0001 中打开', 2],
+        ['Total media size exceeds \u0001MB limit', '媒体总大小超过 \u0001MB 上限', 1],
+        ['Microphone blocked. Allow in \u0001.', '麦克风已被阻止，请在 \u0001 中允许。', 1],
+        ['Microphone access for \u0001 was denied. Quit and reopen the app to be asked again.', '\u0001 的麦克风访问被拒绝。退出并重新打开应用后会再次询问。', 1],
+        ["Microphone access for \u0001 wasn't allowed.", '\u0001 未获得麦克风访问权限。', 1],
+        ["File exceeds the \u0001MB display limit (\u0001MB), so it can't be opened or downloaded here.", '文件超过 \u0001MB 的显示上限（\u0001MB），无法在此打开或下载。', 1],
+        ['The preview did not respond on port \u0001.', '预览在端口 \u0001 上没有响应。', 1],
+        ['Nothing is running on port \u0001', '端口 \u0001 上没有运行任何服务', 1],
+        ['Resume the conversation to start its workspace again, then start the server on port \u0001 and retry.', '请恢复对话以重新启动其工作区，然后在端口 \u0001 上启动服务器并重试。', 1],
+        ['No server is listening on port \u0001 inside the remote workspace. Start it, or ask the agent to, then retry.', '远程工作区内的端口 \u0001 上没有服务器在监听。请自行启动或让智能体启动后重试。', 1],
+        ['The browser blocked the download of \u0001', '浏览器阻止了 \u0001 的下载', 1],
+        ['An embedded page at \u0001 wants to connect to \u0001', '位于 \u0001 的嵌入页面想要连接到 \u0001', 1],
+        ['An embedded page on this page wants to connect to \u0001', '此页面中的嵌入页面想要连接到 \u0001', 1],
+        ['This page wants to connect to \u0001', '此页面想要连接到 \u0001', 1],
+        ['An embedded page at \u0001 says', '位于 \u0001 的嵌入页面提示', 1],
+        ['Check if there is a typo in \u0001, or open the page in your external browser.', '请检查 \u0001 是否有拼写错误，或在外部浏览器中打开该页面。', 1],
+        ['The certificate was rejected (\u0001).', '证书被拒绝（\u0001）。', 1],
+        ['When toggled on, \u0001 collects usage data to help Google enhance performance and features.', '开启后，\u0001 会收集使用数据，帮助 Google 改进性能和功能。', 1],
+        ['Receive product updates, tips, and promotions from Google \u0001 via email.', '通过电子邮件接收 Google \u0001 的产品更新、技巧和促销信息。', 1],
+        ["When toggled on, \u0001 will use your AI credits to fulfill model requests once you're out of model quota. \u0001 will always use your model quota first before using AI credits.", '开启后，模型额度用完时 \u0001 将使用你的 AI 积分来完成模型请求。\u0001 总是会先使用模型额度，再使用 AI 积分。', 1],
+        ['Delete cookies for \u0001', '删除 \u0001 的 Cookie', 1],
+        ['Honors standard VS Code shortcuts without collisions (e.g. \u0001).', '遵循标准 VS Code 快捷键且不冲突（例如 \u0001）。', 1],
+        ['Uses standalone Antigravity chords (e.g. \u0001', '使用独立的 Antigravity 组合键（例如 \u0001', 1],
+        ['Conflicts with "\u0001" (press Enter to replace)', '与“\u0001”冲突（按 Enter 替换）', 1],
+        ['Conflicts with "\u0001" (\u0001)', '与“\u0001”冲突（\u0001）', 1],
+        ['Conflicts with "\u0001"', '与“\u0001”冲突', 1],
+        ['Recording shortcut for \u0001. Press keys to bind, Enter to save, Escape to cancel.', '正在为 \u0001 录制快捷键。按下要绑定的按键，Enter 保存，Escape 取消。', 1],
+        ['Remove shortcut \u0001 for \u0001', '移除快捷键 \u0001（\u0001）', 1],
+        ['Add shortcut for \u0001', '为 \u0001 添加快捷键', 1],
+        ['Failed to remove agent: \u0001', '移除智能体失败：\u0001', 1],
+        ['Failed to remove plugin: \u0001', '移除插件失败：\u0001', 1],
+        ['Failed to toggle plugin: \u0001', '切换插件失败：\u0001', 1],
+        ['Build with \u0001 Plugins', 'Build with \u0001 插件', 1],
+        ['Error submitting auth code: \u0001', '提交授权码出错：\u0001', 1],
+        ['Error disconnecting MCP server: \u0001', '断开 MCP 服务器出错：\u0001', 1],
+        ['Error installing MCP server: \u0001', '安装 MCP 服务器出错：\u0001', 1],
+        ['Error toggling MCP server: \u0001', '切换 MCP 服务器出错：\u0001', 1],
+        ['Error deleting MCP server: \u0001', '删除 MCP 服务器出错：\u0001', 1],
+        ['Error restarting MCP server: \u0001', '重启 MCP 服务器出错：\u0001', 1],
+        ['Error refreshing MCP servers: \u0001', '刷新 MCP 服务器出错：\u0001', 1],
+        ['No installation command found for MCP server "\u0001".', '未找到 MCP 服务器“\u0001”的安装命令。', 1],
+        ['Error toggling tool: \u0001', '切换工具出错：\u0001', 1],
+        ['Are you sure you want to delete the hook "\u0001"?', '确定要删除钩子“\u0001”吗？', 1],
+        ['Please fill in all required fields: \u0001', '请填写所有必填字段：\u0001', 1],
+        ['Secret for a new \u0001 account', '新 \u0001 账号的密钥', 1],
+        ['New secret for \u0001', '\u0001 的新密钥', 1],
+        ['Secret for \u0001', '\u0001 的密钥', 1],
+        ['Label for \u0001', '\u0001 的标签', 1],
+        ['Authorization code for \u0001', '\u0001 的授权码', 1],
+        ['Failed to resolve folder: \u0001 (\u0001)', '解析文件夹失败：\u0001（\u0001）', 1],
+        ['Agent settings and permissions for conversations outside of \u0001.', '\u0001 之外对话的智能体设置与权限。', 1],
+        ['Settings for conversations outside of \u0001.', '\u0001 之外对话的设置。', 1],
+        ['Started voice chat \u00b7 \u0001', '已开始语音对话 · \u0001', 1],
+        ['Stopped voice chat \u00b7 \u0001', '已结束语音对话 · \u0001', 1],
+        ['Recording exceeds 15MB limit (\u0001MB)', '录音超过 15MB 上限（\u0001MB）', 1],
+        ['Could not attach folder "\u0001": \u0001', '无法附加文件夹“\u0001”：\u0001', 1],
+        ['Could not attach image: \u0001', '无法附加图片：\u0001', 1],
+        ['Could not read \u0001.', '无法读取 \u0001。', 1],
+        ['Could not open folder: \u0001', '无法打开文件夹：\u0001', 1],
+        ["You're signing in on \u0001. Your sign-in stays on that machine.", '你正在 \u0001 上登录，登录状态只保留在那台机器上。', 1],
+        ["This window's agents, files, and terminals are on \u0001.", '此窗口的智能体、文件和终端位于 \u0001 上。', 1],
+        ['Amended commit on \u0001.', '已在 \u0001 上修订提交。', 1],
+        ['Your quota for \u0001 will reset on \u0001. Switch to another available model to continue.', '你的 \u0001 额度将于 \u0001 重置。请切换到其他可用模型以继续。', 1],
+        ['Your quota for \u0001 has been reached. Switch to another available model to continue.', '你的 \u0001 额度已用完。请切换到其他可用模型以继续。', 1],
+        ['You need \u0001 AI Credits to send messages. To continue using \u0001 now, purchase more AI Credits.', '发送消息需要 \u0001 AI 积分。如需立即继续使用 \u0001，请购买更多 AI 积分。', 1],
+        ["Your plan's baseline quota will refresh on \u0001.", '你的方案基础额度将于 \u0001 刷新。', 1],
+        ['Failed to fetch directory contents: \u0001', '获取目录内容失败：\u0001', 1],
+        ['The folder \u201c\u0001\u201d does not exist. Would you like to create it?', '文件夹“\u0001”不存在，要创建吗？', 1],
+        ['Failed to unarchive project: \u0001', '取消归档项目失败：\u0001', 1],
+        ['Failed to select workspace: \u0001', '选择工作区失败：\u0001', 1],
+        ['Failed to archive \u0001', '归档 \u0001 失败', 1],
+        ['Go to slide \u0001', '转到第 \u0001 张幻灯片', 1],
+        ['Open conversation \u0001', '打开对话 \u0001', 1],
+        ['Open the \u0001 plugin', '打开 \u0001 插件', 1],
+        ['Open image \u0001 of \u0001', '打开第 \u0001 张图片（共 \u0001 张）', 1],
+        ['View Diff for \u0001', '查看 \u0001 的差异', 1],
+        ['Failed to send interaction: \u0001', '发送交互失败：\u0001', 1],
+        ['Message from \u0001', '来自 \u0001 的消息', 1],
+        ['Minimum length is \u0001', '最小长度为 \u0001', 1],
+        ['Maximum length is \u0001', '最大长度为 \u0001', 1],
+        ['Input must match \u0001', '输入必须匹配 \u0001', 1],
+        ['Minimum value is \u0001', '最小值为 \u0001', 1],
+        ['Maximum value is \u0001', '最大值为 \u0001', 1],
+        ['Select at least \u0001 items', '至少选择 \u0001 项', 1],
+        ['Select at most \u0001 items', '最多选择 \u0001 项', 1],
+        ['App view for \u0001', '\u0001 的应用视图', 1],
+        ['Rejected sending \u0001 to command', '已拒绝向命令发送 \u0001', 1],
+        ['Suggested sending \u0001 to command', '建议向命令发送 \u0001', 1],
+        ['Error sending \u0001 to command', '向命令发送 \u0001 时出错', 1],
+        ['Generating with \u0001 \ud83c\udf4c', '正在使用 \u0001 \ud83c\udf4c 生成', 1],
+        ['Generated with \u0001 \ud83c\udf4c', '已使用 \u0001 \ud83c\udf4c 生成', 1],
+        ['Generate with \u0001 \ud83c\udf4c', '使用 \u0001 \ud83c\udf4c 生成', 1],
+        ['Side question (conversation \u0001): \u0001', '旁路提问（对话 \u0001）：\u0001', 1],
+        ['Side question failed: \u0001', '旁路提问失败：\u0001', 1],
+        ['Delete side question: \u0001', '删除旁路提问：\u0001', 1],
+        ['Edit side question title: \u0001', '编辑旁路提问标题：\u0001', 1],
+        ['Cost summary: \u0001', '成本汇总：\u0001', 1],
+        ['Set up \u0001', '设置 \u0001', 1],
+        ['Review permissions for \u0001', '查看 \u0001 的权限', 1],
+        ['Sort and filter conversations (\u0001 active)', '排序和筛选对话（\u0001 项生效）', 1],
+        ['Trajectory not found (\u0001).', '未找到轨迹（\u0001）。', 1],
+        ['Showing first \u0001 references', '显示前 \u0001 条引用', 1],
+        ['Edit comment: \u0001', '编辑评论：\u0001', 1],
+        ['Artifact image \u0001', '产物图片 \u0001', 1],
+        ['Sent response: \u0001', '已发送回复：\u0001', 1],
+        ['Failed to send response: \u0001', '发送回复失败：\u0001', 1],
+        ['Please retry: \u0001', '请重试：\u0001', 1],
+        ['Send all (\u0001)', '全部发送（\u0001）', 1],
+        ['Cancel Questionnaire and Stop the Agent (\u0001)', '取消问卷并停止智能体（\u0001）', 1],
+        ['Conflicts with your configured Ask permission: \u0001', '与你配置的“询问”权限冲突：\u0001', 1],
+        ['Requires manual confirmation: \u0001', '需要手动确认：\u0001', 1],
+        ['Install folder "\u0001" is already in use', '安装文件夹“\u0001”已被占用', 1],
+        ['\u0001, all already installed. Adding the bundle installs plugins it gains later.', '\u0001，均已安装。添加此捆绑包后，它之后新增的插件也会自动安装。', 1],
+        ['Signed in: \u0001', '已登录：\u0001', 1],
+        ['Fix with Agent: \u0001', '让智能体修复：\u0001', 1],
+        ['Account this MCP server uses: \u0001', '此 MCP 服务器使用的账号：\u0001', 1],
+        ['Unnamed skill \u0001', '未命名技能 \u0001', 1],
+        ['Error restarting \u0001: \u0001', '重启 \u0001 出错：\u0001', 1],
+        ['Error updating agent: \u0001', '更新智能体出错：\u0001', 1],
+        ['Searching as \u0001', '以 \u0001 身份搜索', 1],
+        ['Invalid notebook JSON: \u0001', '笔记本 JSON 无效：\u0001', 1],
+        ['Preview unavailable \u2014 \u0001', '预览不可用 — \u0001', 1],
+        ['Side panel \u0001', '侧面板 \u0001', 1],
+        ['Aux pane \u0001', '辅助面板 \u0001', 1],
+        ['Move to Group: \u0001', '移动到分组：\u0001', 1],
+        ['Forked from \u0001', '派生自 \u0001', 1],
+        ['Where the agent runs, current: \u0001 (\u0001)', '智能体运行位置，当前：\u0001（\u0001）', 1],
+        ['Where the agent runs, current: \u0001', '智能体运行位置，当前：\u0001', 1],
+        ['No matching \u0001', '没有匹配的 \u0001', 1],
+        ['No remote \u0001', '没有远程 \u0001', 1],
+        ['Uses your local clone, \u0001', '使用你的本地克隆，\u0001', 1],
+        ['Remove context from \u0001', '从 \u0001 移除上下文', 1],
+        ['No connectors match \u201c\u0001\u201d', '没有匹配“\u0001”的连接器', 1],
+        ["Browser tools run on \u0001, the SSH host this window is connected to, and Chrome there isn't accepting remote debugging. Complete these steps on \u0001, not on this computer:", '浏览器工具运行在 \u0001 上（此窗口所连接的 SSH 主机），而那里的 Chrome 未接受远程调试。请在 \u0001 上而不是这台电脑上完成以下步骤：', 1],
+        ['Open Google Chrome on \u0001.', '在 \u0001 上打开 Google Chrome。', 1],
+        ['Using default \u0001 name', '使用默认 \u0001 名称', 1],
+        ['Detached at \u0001', '已分离于 \u0001', 1],
+        ['Checked out in \u0001', '已检出到 \u0001', 1],
+        ['Work locally on \u0001', '在本地 \u0001 上工作', 1],
+        ['Worktree from \u0001', '基于 \u0001 的工作树', 1],
+        ['Work in \u0001', '在 \u0001 中工作', 1],
+        ['System default (\u0001)', '系统默认（\u0001）', 1],
+        ['No audio from \u0001', '\u0001 没有音频输入', 1],
+        ['Message queued. \u0001 messages in queue.', '消息已加入队列，队列中共 \u0001 条消息。', 1],
+        ['Send now: \u0001', '立即发送：\u0001', 1],
+        ['Upload error: \u0001', '上传出错：\u0001', 1],
+        ['Retrying transcription (attempt \u0001)\u2026', '正在重试转写（第 \u0001 次）\u2026', 1],
+        ['Adding plugins from \u0001', '正在从 \u0001 添加插件', 1],
+        ['This plugin in \u0001 may have looser code review. Review its contents before adding the bundle.', '\u0001 中的此插件代码审查可能较宽松，添加捆绑包前请先查看其内容。', 1],
+        ['These plugins in \u0001 may have looser code review. Review their contents before adding the bundle.', '\u0001 中的这些插件代码审查可能较宽松，添加捆绑包前请先查看其内容。', 1],
+        ['Credentials expire in \u0001. Refresh credentials to keep this automation running', '凭据将在 \u0001后过期。请刷新凭据以保持此自动化运行'],
+        ['See more in \u0001', '在 \u0001 中查看更多', 2],
+        ['See less in \u0001', '在 \u0001 中收起', 2],
+        ['See more \u0001', '查看更多 \u0001', 1],
+        ['Filter skills and rules: \u0001', '筛选技能和规则：\u0001', 1],
+        ['Details for \u0001', '\u0001 的详情', 2],
+        ['Plugins in \u0001', '\u0001 中的插件', 2],
+        ['You have \u0001 conversations in progress. Updating will interrupt them, and they will automatically resume once the update completes.', '你有 \u0001 个对话正在进行。更新会中断它们，更新完成后它们会自动恢复。', 1],
+        ["You have \u0001 conversations in progress. Updating will cancel them and you'll need to manually restart them.", '你有 \u0001 个对话正在进行。更新会取消它们，之后需要你手动重新开始。', 1],
+        ['Switch environment (\u0001)', '切换环境（\u0001）', 1],
+        ['No messages in last \u0001 steps \u2014 load older', '最近 \u0001 个步骤中没有消息 — 加载更早的消息', 1],
+        ['No messages in last \u0001 steps, load older', '最近 \u0001 个步骤中没有消息，加载更早的消息', 1],
+        ['No messages in last \u0001 steps \u00b7 Load more', '最近 \u0001 个步骤中没有消息 · 加载更多', 1],
+        ['No visible messages in last \u0001 steps. Activate Load older messages to continue.', '最近 \u0001 个步骤中没有可见消息。请点击“加载更早的消息”以继续。', 1],
+        ['Go to turn \u0001 of \u0001', '转到第 \u0001 轮（共 \u0001 轮）', 1],
+        ['Moved conversation \u0001', '已移动对话 \u0001', 1],
+        ['Managed by the \u0001 automation', '由 \u0001 自动化管理', 1],
+        ['Managed by the \u0001 plugin', '由 \u0001 插件管理', 1],
+        ['User uploaded media \u0001', '用户上传的媒体 \u0001', 1],
+        ['Back to \u0001', '返回 \u0001', 2],
+        ['There was an error determining the code changes that this undo action will make: \u0001', '无法确定此撤销操作将造成的代码更改：\u0001', 1],
+        // 2.34.0 步骤行：\u0001 为模型写的工具说明（标记 3：双语模式下交给机器翻译，否则原样保留）
+        ['Running \u0001', '正在运行：\u0001', 3],
+        ['Editing \u0001', '正在编辑 \u0001', 1],
+        ['Listing \u0001', '正在列出 \u0001', 1],
+        ['Exited with code \u0001', '已退出，退出码 \u0001', 1],
+        ['Used MCP tool: \u0001', '使用了 MCP 工具：\u0001', 1],
+        ['Viewed \u0001', '查看了 \u0001', 1],
     ];
     // 具体句式优先：按模板字面量长度降序，避免泛化句式抢先命中
     DYNAMIC_MAP.sort(function (a, b) { return b[0].length - a[0].length; });
     for (var _di = 0; _di < DYNAMIC_MAP.length; _di++) {
         var _parts = DYNAMIC_MAP[_di][0].split('\u0001');
         var _rx = '^' + _parts.map(agEscRe).join('([\\s\\S]+?)') + '$';
-        DYNAMIC_MAP[_di] = [new RegExp(_rx), DYNAMIC_MAP[_di][1]];
+        DYNAMIC_MAP[_di] = [new RegExp(_rx), DYNAMIC_MAP[_di][1], DYNAMIC_MAP[_di][2]];
     }
     function beautifyRemain(s) {
         var WD = { sunday: '周日', monday: '周一', tuesday: '周二', wednesday: '周三', thursday: '周四', friday: '周五', saturday: '周六' };
@@ -3078,8 +3832,18 @@ function agZhRenderer() {
             .replace(/\s+/g, ' ')
             .trim();
     }
-    var ATTR_KEYS = ['placeholder', 'title', 'aria-label', 'value'];
-    function zh(s) {
+    // 需要翻译的属性（value 仅用于只读输入框，单独处理）
+    var ATTR_KEYS = ['placeholder', 'title', 'aria-label', 'aria-description', 'data-tooltip-content', 'value'];
+    // 用户/智能体内容区：不翻译其中的文本节点（智能体回复与思考过程的 Markdown、用户消息、编辑器、终端、代码）
+    var SKIP_SEL = 'pre,code,textarea,script,style,[contenteditable="true"],[contenteditable=""],[contenteditable="plaintext-only"],' +
+        '[data-markdown-root],[data-testid="user-message-content"],[data-testid="user-message-bubble"],' +
+        '.monaco-editor,.xterm,.cm-editor,[data-agzh-skip],.agzh-tr';
+    // 内容区里由界面生成的部件（Markdown 提示框标题等），仍然翻译
+    var ALLOW_SEL = '.markdown-alert-title,[data-agzh-allow]';
+    // 属性翻译只排除代码/编辑器（悬停提示、按钮无障碍标签属于界面文案）
+    var ATTR_SKIP_SEL = 'pre,code,.monaco-editor,.xterm,.cm-editor,[data-agzh-skip]';
+    var CACHE = new Map();
+    function zhRaw(s) {
         var key = s.trim();
         if (!key)
             return null;
@@ -3099,7 +3863,7 @@ function agZhRenderer() {
                 if (_dm) {
                     var _dv = DYNAMIC_MAP[_dj][1];
                     for (var _dg = 1; _dg < _dm.length; _dg++)
-                        _dv = _dv.replace('\u0001', beautifyRemain(_dm[_dg]));
+                        _dv = _dv.replace('\u0001', (function (g) { return function () { return g; }; })(dynFill(DYNAMIC_MAP[_dj][2], _dm[_dg])));
                     v = _dv;
                     break;
                 }
@@ -3143,27 +3907,67 @@ function agZhRenderer() {
                 }
             }
         }
+        // 逗号拼接的步骤组摘要（如 "Explored files, ran commands"）：每段都是已知词条时逐段翻译
+        if (v === undefined && key.indexOf(', ') > 0) {
+            var _cp = key.split(', ');
+            if (_cp.length <= 4) {
+                for (var _ci = 0; _ci < _cp.length && _cp[_ci] !== null; _ci++)
+                    _cp[_ci] = MAP[_cp[_ci]] === undefined ? null : MAP[_cp[_ci]];
+                if (_cp.indexOf(null) < 0)
+                    v = _cp.join('，');
+            }
+        }
         if (v === undefined || v === key)
             return null;
-        return s.replace(key, v);
+        return s.replace(key, function () { return v; });
     }
-    // 用户内容保护：只精确保护"对话标题"这类用户输入文本，其余界面文案（含相对时间）照常翻译
-    function isUserContent(el) {
-        if (!el || el.nodeType !== 1)
+    // 拼接句式变量的填充方式：2 按词表翻译；3 模型写的说明（双语模式下机器翻译）；其他真值原样；默认美化时间量词
+    function dynFill(flag, g) {
+        if (flag === 2)
+            return MAP[g.trim()] || g;
+        if (flag === 3)
+            return mtInline(g);
+        return flag ? g : beautifyRemain(g);
+    }
+    function zh(s) {
+        // 双语模式下的结果可能含机器译文，与普通模式分开缓存；机器译文尚未返回的结果不缓存
+        var ck = MT.on ? '\u0002' + s : s;
+        var hit = CACHE.get(ck);
+        if (hit !== undefined)
+            return hit;
+        var outer = MT_MISS;
+        MT_MISS = false;
+        var r = zhRaw(s);
+        var miss = MT_MISS;
+        MT_MISS = outer || miss;
+        if (!miss) {
+            if (CACHE.size > 20000)
+                CACHE.clear();
+            CACHE.set(ck, r);
+        }
+        return r;
+    }
+    // 会话列表里的对话标题是用户数据：精确保护
+    function isConversationTitle(el) {
+        var row = el.closest('[data-cascade-id]');
+        if (!row)
             return false;
-        if (el.closest && el.closest('[contenteditable="true"],pre,code,textarea'))
+        if (el.matches('span.truncate.inline-block'))
             return true;
-        var row = el.closest && el.closest('[data-cascade-id]');
-        if (row) {
-            // 会话行标题：span.truncate.inline-block，且其文本等于该行遮罩链接的 aria-label
-            if (el.matches && el.matches('span.truncate.inline-block'))
-                return true;
-            var label = row.querySelector('a[aria-label]');
-            var t = (el.textContent || '').trim();
-            if (label && t && label.getAttribute('aria-label') === t)
+        var label = row.querySelector('a[aria-label]');
+        var t = (el.textContent || '').trim();
+        return !!(label && t && label.getAttribute('aria-label') === t);
+    }
+    function isProtected(el) {
+        if (!el || el.nodeType !== 1)
+            return true;
+        var c = el.closest(SKIP_SEL);
+        if (c) {
+            var a = el.closest(ALLOW_SEL);
+            if (!(a && c.contains(a) && a !== c))
                 return true;
         }
-        return false;
+        return isConversationTitle(el);
     }
     // 整句未命中时，按分句/分隔符切段，逐段翻译，尽力而为地中文化长句
     function translateFragment(s) {
@@ -3184,116 +3988,737 @@ function agZhRenderer() {
         // React 拆句场景改由片段级词条（见 MAP 里的短语）覆盖。
         return out;
     }
-    function applyText(root) {
-        try {
-            var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-            var n = walker.nextNode();
-            while (n) {
-                if (n.nodeValue && !isUserContent(n.parentElement)) {
-                    var val = n.nodeValue;
-                    var m = zh(val);
-                    if (m === null && val.length <= 400 && /[A-Za-z]{3}/.test(val))
-                        m = translateFragment(val);
-                    if (m !== null && m !== val)
-                        n.nodeValue = m;
+    function translateText(src) {
+        var m = zh(src);
+        if (m === null && src.length <= 400 && /[A-Za-z]{3}/.test(src))
+            m = translateFragment(src);
+        return m !== null && m !== src ? m : null;
+    }
+    // 记录每个被改写的文本节点：{orig 原文, out 写入值}。React 之后若改写该节点，nodeValue 不再等于 out，
+    // 即可识别为新的原文重新翻译；未被改动时继续以原文为源，保证幂等、不会叠加翻译
+    var REC = new WeakMap();
+    function sourceOf(t) {
+        var r = REC.get(t);
+        return r && r.out === t.nodeValue ? r.orig : t.nodeValue;
+    }
+    function write(t, src, out) {
+        if (t.nodeValue !== out)
+            t.nodeValue = out;
+        REC.set(t, { orig: src, out: out });
+    }
+    function processText(t) {
+        var cur = t.nodeValue;
+        if (!cur || (!/[A-Za-z]/.test(cur) && !REC.has(t)))
+            return;
+        var src = sourceOf(t);
+        MT_MISS = false;
+        var out = translateText(src);
+        if (out === null && MT.on && mtIsLabel(t, src))
+            out = mtLabel(src);
+        // 机器译文还没返回：登记节点，译文到达后重新处理
+        if (MT_MISS)
+            MT.watch.add(t);
+        if (out !== null)
+            write(t, src, out);
+        else if (src !== cur)
+            write(t, src, src);
+    }
+    // React 把一句话拆成多个相邻文本节点（如 "3" + " items"）时：拼接原文整体翻译，
+    // 结果写入第一个节点、其余置空（节点本身保留，React 后续更新仍能找到它们）
+    function processComposite(texts) {
+        var srcs = [];
+        for (var i = 0; i < texts.length; i++)
+            srcs.push(sourceOf(texts[i]) || '');
+        var joined = srcs.join('');
+        var trimmed = joined.trim();
+        var out = trimmed.length >= 2 && trimmed.length <= 600 && /[A-Za-z]{2}/.test(trimmed) ? translateText(joined) : null;
+        if (out !== null && /[\u4e00-\u9fff]/.test(out)) {
+            for (var j = 0; j < texts.length; j++)
+                write(texts[j], srcs[j], j === 0 ? out : '');
+            return;
+        }
+        for (var k = 0; k < texts.length; k++)
+            processText(texts[k]);
+    }
+    function processParentTexts(p, done) {
+        if (done.has(p))
+            return;
+        done.add(p);
+        if (isProtected(p))
+            return;
+        var texts = [];
+        var hasElement = false;
+        for (var c = p.firstChild; c; c = c.nextSibling) {
+            if (c.nodeType === 3)
+                texts.push(c);
+            else if (c.nodeType === 1)
+                hasElement = true;
+        }
+        if (!hasElement && texts.length > 1)
+            processComposite(texts);
+        else
+            for (var i = 0; i < texts.length; i++)
+                processText(texts[i]);
+    }
+    function processAttrs(el) {
+        if (el.closest(ATTR_SKIP_SEL))
+            return;
+        for (var j = 0; j < ATTR_KEYS.length; j++) {
+            var a = ATTR_KEYS[j];
+            if (a === 'value') {
+                // 仅翻译只读输入框（下拉框显示值），不碰用户可编辑内容
+                if (el.tagName === 'INPUT' && el.readOnly && el.value && /[A-Za-z]/.test(el.value)) {
+                    var mv = zh(el.value);
+                    if (mv !== null && mv !== el.value)
+                        el.value = mv;
                 }
-                n = walker.nextNode();
+                continue;
             }
+            var v = el.getAttribute(a);
+            if (v && /[A-Za-z]/.test(v)) {
+                var m = zh(v);
+                if (m !== null && m !== v)
+                    el.setAttribute(a, m);
+            }
+        }
+    }
+    var ATTR_QUERY = '[' + ATTR_KEYS.slice(0, -1).join('],[') + '],input[readonly]';
+    function processTree(root, done) {
+        if (root.nodeType === 3) {
+            if (root.parentElement)
+                processParentTexts(root.parentElement, done);
+            return;
+        }
+        if (root.nodeType !== 1 && root.nodeType !== 11)
+            return;
+        if (root.nodeType === 1) {
+            processAttrs(root);
+            if (root.closest(SKIP_SEL) && !root.closest(ALLOW_SEL)) {
+                // 内容区：只处理其中的界面部件与属性
+                var allowed = root.querySelectorAll(ALLOW_SEL);
+                for (var a = 0; a < allowed.length; a++)
+                    processTree(allowed[a], done);
+                var attrEls0 = root.querySelectorAll(ATTR_QUERY);
+                for (var b = 0; b < attrEls0.length; b++)
+                    processAttrs(attrEls0[b]);
+                return;
+            }
+        }
+        var attrEls = root.querySelectorAll(ATTR_QUERY);
+        for (var i = 0; i < attrEls.length; i++)
+            processAttrs(attrEls[i]);
+        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        for (var n = walker.nextNode(); n; n = walker.nextNode()) {
+            if (n.parentElement)
+                processParentTexts(n.parentElement, done);
+        }
+    }
+    function safe(fn) {
+        try {
+            fn();
         }
         catch (e) { /* 翻译失败不影响界面 */ }
     }
-    // 容器级兜底：React 把一句话拆成多个文本节点时，拼起来再翻
-    function applyComposite(root) {
-        try {
-            if (!root.querySelectorAll)
-                return;
-            var els = root.querySelectorAll('p,li,h1,h2,h3,h4,h5,h6,label,span,div,button,a,td,th,summary,figcaption,option');
-            for (var i = 0; i < els.length; i++) {
-                var el = els[i];
-                if (el.children && el.children.length)
-                    continue;
-                if (el.closest && el.closest('pre,code,script,style,textarea'))
-                    continue;
-                if (isUserContent(el))
-                    continue;
-                var raw = el.textContent;
-                if (!raw)
-                    continue;
-                var t = raw.trim();
-                if (t.length < 4 || t.length > 600)
-                    continue;
-                if (/[\u4e00-\u9fff]/.test(t))
-                    continue;
-                if (!/[A-Za-z]{2}/.test(t))
-                    continue;
-                var tr = translateFragment(t);
-                if (tr && tr !== t && /[\u4e00-\u9fff]/.test(tr))
-                    el.textContent = tr;
+    // =====================================================================================
+    // 双语对照（机器翻译）：模型写的内容没法进词表，开关打开后交给微软翻译（Edge 内置翻译用的免费接口）
+    //   - 思考过程、智能体回复：逐段翻译，译文显示在原文下方；正在流式输出的段落等写完（或停顿）后再翻
+    //   - 步骤行里模型写的说明（如 "Ran search UI text for 门禁" 的后半句）：直接替换，悬停显示原文
+    //   - 行内代码/文件标签等用占位符保护，翻译后原样放回；已经是中文的段落不翻
+    //   - 译文按原文缓存，界面重绘时同步复用（不闪烁）；接口失败时退避重试，期间保留原文
+    // =====================================================================================
+    var MT_ENDPOINT = 'https://edge.microsoft.com/translate/translatetext?from=en&to=zh-Hans&isEnterpriseClient=false';
+    var MT_CFG = window.__agzhCfg || {};
+    var MT = {
+        on: MT_CFG.bilingual === true,
+        cache: new Map(),     // 原文 -> 译文
+        queue: [],            // 待请求的原文
+        queued: new Set(),
+        solo: new Set(),      // 曾在批量请求中失败的原文：单独发送，避免拖累同批
+        tries: new Map(),
+        dead: new Set(),      // 多次失败的原文：本次运行不再请求
+        inflight: 0,
+        fails: 0,
+        failUntil: 0,
+        timer: 0,
+        tick: 0,
+        notifyTimer: 0,
+        units: new WeakMap(), // 段落元素 -> 状态
+        tracked: new Set(),   // 已插入译文的段落
+        pending: new Set(),   // 等待译文的段落
+        watch: new Set(),     // 等待译文的步骤行文本节点
+        error: false,
+    };
+    var MT_MISS = false;
+    var MT_PH = /\u27e6\s*(\d+)\s*\u27e7/g;
+    var MT_UNIT_SEL = 'p,li,h1,h2,h3,h4,h5,h6,td,th,dt,dd';
+    var MT_BLOCK_TAG = /^(UL|OL|PRE|TABLE|BLOCKQUOTE|DIV|P|DETAILS|H[1-6]|HR|FIGURE|SECTION)$/;
+    var MT_INLINE_TAG = /^(B|STRONG|I|EM|U|S|DEL|INS|MARK|SMALL|SUB|SUP|SPAN|A|LABEL|ABBR|Q|CITE|TIME|FONT)$/;
+    var MT_THINK_BTN = 'button[data-testid="thinking-collapsible-trigger"]';
+    var MT_ROOTS = new WeakMap();
+    // 值得翻译：有成段英文，且不是以中文为主
+    function mtWorth(s) {
+        var plain = s.replace(MT_PH, ' ');
+        var latin = (plain.match(/[A-Za-z]/g) || []).length;
+        if (latin < 3 || !/[A-Za-z]{2,}/.test(plain))
+            return false;
+        var cjk = (plain.match(/[\u3400-\u9fff]/g) || []).length;
+        return cjk * 2 < latin;
+    }
+    function mtPut(src, out) {
+        if (MT.cache.size >= 4000)
+            MT.cache.delete(MT.cache.keys().next().value);
+        MT.cache.set(src, out);
+    }
+    function mtWant(s) {
+        if (!MT.on || MT.cache.has(s) || MT.queued.has(s) || MT.dead.has(s))
+            return;
+        MT.queued.add(s);
+        MT.queue.push(s);
+        mtSchedule(120);
+    }
+    function mtSchedule(ms) {
+        if (!MT.timer)
+            MT.timer = setTimeout(mtFlush, ms);
+    }
+    function mtFlush() {
+        MT.timer = 0;
+        if (!MT.on || !MT.queue.length)
+            return;
+        var wait = MT.failUntil - Date.now();
+        if (wait > 0) {
+            mtSchedule(wait);
+            return;
+        }
+        while (MT.inflight < 3 && MT.queue.length) {
+            var batch = [MT.queue.shift()], chars = batch[0].length;
+            if (!MT.solo.has(batch[0])) {
+                while (MT.queue.length && batch.length < 40 && !MT.solo.has(MT.queue[0]) && chars + MT.queue[0].length <= 8000) {
+                    chars += MT.queue[0].length;
+                    batch.push(MT.queue.shift());
+                }
+            }
+            mtSend(batch);
+        }
+    }
+    function mtSend(batch) {
+        MT.inflight++;
+        var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+        var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 20000);
+        fetch(MT_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(batch),
+            credentials: 'omit',
+            signal: ctl ? ctl.signal : undefined,
+        }).then(function (r) {
+            if (!r.ok)
+                throw new Error('HTTP ' + r.status);
+            return r.json();
+        }).then(function (res) {
+            MT.fails = 0;
+            mtSetError(false);
+            for (var i = 0; i < batch.length; i++) {
+                var t = res && res[i] && res[i].translations && res[i].translations[0];
+                MT.queued.delete(batch[i]);
+                if (t && typeof t.text === 'string')
+                    mtPut(batch[i], t.text);
+                else
+                    MT.dead.add(batch[i]);
+            }
+            mtNotify();
+        }, function () {
+            MT.fails++;
+            MT.failUntil = Date.now() + Math.min(60000, 1500 * Math.pow(2, Math.min(MT.fails, 6) - 1));
+            mtSetError(true);
+            for (var i = batch.length - 1; i >= 0; i--) {
+                var s = batch[i], n = (MT.tries.get(s) || 0) + 1;
+                MT.tries.set(s, n);
+                if (batch.length > 1)
+                    MT.solo.add(s);
+                if (n >= 4) {
+                    MT.queued.delete(s);
+                    MT.dead.add(s);
+                }
+                else
+                    MT.queue.unshift(s);
+            }
+        }).then(function () {
+            clearTimeout(timer);
+            MT.inflight--;
+            if (MT.queue.length)
+                mtSchedule(Math.max(50, MT.failUntil - Date.now()));
+        });
+    }
+    // 译文到达：刷新等待中的段落与步骤行
+    function mtNotify() {
+        if (!MT.notifyTimer)
+            MT.notifyTimer = setTimeout(function () { MT.notifyTimer = 0; safe(mtRefresh); }, 0);
+    }
+    function mtRefresh() {
+        if (!MT.on)
+            return;
+        MT.pending.forEach(function (u) {
+            if (!u.isConnected)
+                MT.pending.delete(u);
+            else
+                mtUnit(u);
+        });
+        var done = new Set(), texts = [];
+        MT.watch.forEach(function (t) { texts.push(t); });
+        MT.watch.clear();
+        for (var i = 0; i < texts.length; i++)
+            if (texts[i].isConnected && texts[i].parentElement)
+                processParentTexts(texts[i].parentElement, done);
+    }
+    // ---- 步骤行（模型写的工具说明）----
+    // 步骤行的说明元素带 title（悬停显示的就是原文）：c2 组件的内容 span，或步骤组标题的流光文字 span
+    function mtIsLabel(t, src) {
+        var el = t.parentElement;
+        if (!el || el.closest('[data-markdown-root],[data-testid^="user-message"],pre,code'))
+            return false;
+        var s = src.trim();
+        for (var e = el, i = 0; e && i < 4; e = e.parentElement, i++) {
+            var ti = e.getAttribute('title');
+            if (ti === null)
+                continue;
+            if (ti.trim() !== s)
+                return false;
+            return (e.matches('span.truncate') && !!e.parentElement && e.parentElement.matches('div.whitespace-nowrap')) ||
+                !!e.querySelector(':scope > .shimmer-text-mask');
+        }
+        return false;
+    }
+    function mtInline(g) {
+        if (!MT.on)
+            return g;
+        var s = g.trim();
+        if (!mtWorth(s))
+            return g;
+        var v = MT.cache.get(s);
+        if (v !== undefined)
+            return g.replace(s, function () { return v; });
+        if (!MT.dead.has(s)) {
+            MT_MISS = true;
+            mtWant(s);
+        }
+        return g;
+    }
+    // "说明 · Exited with code 1"：按分隔符逐段处理，词表能翻的走词表，其余机器翻译
+    function mtLabel(src) {
+        var segs = src.split(' \u00b7 '), changed = false;
+        for (var i = 0; i < segs.length; i++) {
+            var d = zh(segs[i]);
+            var m = d !== null ? d : mtInline(segs[i]);
+            if (m !== segs[i]) {
+                segs[i] = m;
+                changed = true;
             }
         }
-        catch (e) { /* 同上 */ }
+        return changed ? segs.join(' \u00b7 ') : null;
     }
-    function applyAttrs(root) {
-        try {
-            if (!root.querySelectorAll)
-                return;
-            var els = root.querySelectorAll('[' + ATTR_KEYS.slice(0, 3).join('],[') + '],input[readonly]');
-            for (var i = 0; i < els.length; i++) {
-                var el = els[i];
-                // 属性翻译不涉及用户正文，只需排除代码块
-                if (el.closest && el.closest('pre,code'))
-                    continue;
-                for (var j = 0; j < ATTR_KEYS.length; j++) {
-                    var a = ATTR_KEYS[j];
-                    var v = el.getAttribute(a);
-                    if (a === 'value') {
-                        // 仅翻译只读输入框(下拉框显示值),不碰用户可编辑内容
-                        if (el.tagName === 'INPUT' && el.readOnly && el.value) {
-                            var mv = zh(el.value);
-                            if (mv !== null && mv !== el.value)
-                                el.value = mv;
+    // ---- 思考过程 / 回复正文 ----
+    function mtIsTargetRoot(root) {
+        var v = MT_ROOTS.get(root);
+        if (v !== undefined)
+            return v;
+        v = false;
+        if (!root.closest('[data-testid^="user-message"]')) {
+            if (root.closest('[data-testid="planner-response-text"],[data-testid="progress-update-response-text"]'))
+                v = true;
+            else {
+                // 思考内容位于思考折叠按钮之后的展开区
+                outer: for (var a = root, i = 0; a && i < 8; a = a.parentElement, i++) {
+                    for (var p = a.previousElementSibling; p; p = p.previousElementSibling) {
+                        if (p.matches(MT_THINK_BTN)) {
+                            v = true;
+                            break outer;
                         }
-                        continue;
-                    }
-                    if (v) {
-                        var m = zh(v);
-                        if (m !== null && m !== v)
-                            el.setAttribute(a, m);
                     }
                 }
             }
         }
-        catch (e) { /* 同上 */ }
+        if (root.isConnected)
+            MT_ROOTS.set(root, v);
+        return v;
     }
-    function applyAll() {
-        if (!document.body)
+    function mtUnitFrom(el, root) {
+        var u = el.closest(MT_UNIT_SEL);
+        if (!u || !root.contains(u) || u.closest('pre,code,.agzh-tr'))
+            return null;
+        // 松散列表（li 里有 p）：以 p 为单位
+        if (u.tagName === 'LI')
+            for (var c = u.firstElementChild; c; c = c.nextElementSibling)
+                if (c.tagName === 'P')
+                    return null;
+        return u;
+    }
+    // 提取段落自身文字：行内代码、图标、文件标签等替换为占位符 ⟦n⟧；嵌套列表/代码块等子块不计入
+    function mtExtract(unit) {
+        var parts = [], text = '';
+        (function walk(n) {
+            for (var c = n.firstChild; c; c = c.nextSibling) {
+                if (c.nodeType === 3) {
+                    text += c.nodeValue;
+                    continue;
+                }
+                if (c.nodeType !== 1)
+                    continue;
+                var tag = c.tagName;
+                if (tag === 'STYLE' || tag === 'SCRIPT' || c.classList.contains('agzh-tr'))
+                    continue;
+                if (tag === 'BR') {
+                    text += '\n';
+                    continue;
+                }
+                if (n === unit && MT_BLOCK_TAG.test(tag)) {
+                    if (tag === 'DIV' && !c.querySelector(MT_UNIT_SEL + ',pre,table'))
+                        walk(c);
+                    continue;
+                }
+                if (MT_INLINE_TAG.test(tag) && !c.querySelector('svg,img,button,input,video,canvas')) {
+                    walk(c);
+                    continue;
+                }
+                text += '\u27e6' + parts.length + '\u27e7';
+                parts.push(c);
+            }
+        })(unit);
+        var key = text.replace(/[ \t\r\f\v\u00a0]+/g, ' ').replace(/ ?\n ?/g, '\n').trim();
+        return { key: key, parts: parts };
+    }
+    function mtPlace(unit, tr) {
+        var tag = unit.tagName;
+        if (tag === 'LI' || tag === 'TD' || tag === 'TH' || tag === 'DT' || tag === 'DD') {
+            // 放在单元内部、嵌套子块之前
+            var ref = null;
+            for (var c = unit.firstChild; c; c = c.nextSibling)
+                if (c !== tr && c.nodeType === 1 && MT_BLOCK_TAG.test(c.tagName)) {
+                    ref = c;
+                    break;
+                }
+            if (tr.parentNode !== unit || tr.nextSibling !== ref)
+                unit.insertBefore(tr, ref);
+        }
+        else if (unit.parentNode && unit.nextSibling !== tr) {
+            unit.parentNode.insertBefore(tr, unit.nextSibling);
+        }
+    }
+    function mtClone(el) {
+        var c = el.cloneNode(true);
+        c.removeAttribute('id');
+        var ids = c.querySelectorAll('[id]');
+        for (var i = 0; i < ids.length; i++)
+            ids[i].removeAttribute('id');
+        return c;
+    }
+    function mtRender(unit, st, out) {
+        var tr = st.tr;
+        if (!tr) {
+            tr = st.tr = document.createElement('div');
+            tr.className = 'agzh-tr';
+            tr.setAttribute('data-agzh-skip', '');
+            tr.setAttribute('lang', 'zh-CN');
+            MT.tracked.add(unit);
+        }
+        var sig = st.key + '\u0003' + st.parts.map(function (p) { return p.textContent; }).join('\u0003');
+        if (st.shown !== sig) {
+            while (tr.firstChild)
+                tr.removeChild(tr.firstChild);
+            var last = 0, m;
+            MT_PH.lastIndex = 0;
+            while ((m = MT_PH.exec(out))) {
+                if (m.index > last)
+                    tr.appendChild(document.createTextNode(out.slice(last, m.index)));
+                if (st.parts[+m[1]])
+                    tr.appendChild(mtClone(st.parts[+m[1]]));
+                last = MT_PH.lastIndex;
+            }
+            if (last < out.length)
+                tr.appendChild(document.createTextNode(out.slice(last)));
+            st.shown = sig;
+        }
+        tr.classList.remove('agzh-stale');
+        mtPlace(unit, tr);
+    }
+    function mtDrop(unit, st) {
+        if (st.tr && st.tr.parentNode)
+            st.tr.parentNode.removeChild(st.tr);
+        MT.units.delete(unit);
+        MT.tracked.delete(unit);
+        MT.pending.delete(unit);
+    }
+    function mtUnit(unit) {
+        var st = MT.units.get(unit);
+        var ex = mtExtract(unit);
+        if (!ex.key || ex.key.length > 5000 || !mtWorth(ex.key)) {
+            if (st)
+                mtDrop(unit, st);
             return;
-        applyText(document.body);
-        applyAttrs(document.body);
-        applyComposite(document.body);
+        }
+        if (!st) {
+            st = { key: '', at: 0, tr: null, shown: '', parts: [] };
+            MT.units.set(unit, st);
+        }
+        if (st.key !== ex.key) {
+            st.key = ex.key;
+            st.at = Date.now();
+        }
+        st.parts = ex.parts;
+        var out = MT.cache.get(ex.key);
+        if (out !== undefined) {
+            MT.pending.delete(unit);
+            mtRender(unit, st, out);
+            return;
+        }
+        // 原文变了（流式输出中）：旧译文淡化保留，等新译文
+        if (st.tr) {
+            st.tr.classList.add('agzh-stale');
+            mtPlace(unit, st.tr);
+        }
+        if (MT.dead.has(ex.key)) {
+            MT.pending.delete(unit);
+            return;
+        }
+        MT.pending.add(unit);
+        if (!MT.tick)
+            MT.tick = setInterval(function () { safe(mtTick); }, 400);
+    }
+    // 段落写完才请求翻译：后面已有新段落，或 0.9 秒没有变化
+    function mtTick() {
+        if (!MT.on || !MT.pending.size) {
+            clearInterval(MT.tick);
+            MT.tick = 0;
+            return;
+        }
+        var now = Date.now();
+        MT.pending.forEach(function (u) {
+            var st = MT.units.get(u);
+            if (!u.isConnected || !st) {
+                MT.pending.delete(u);
+                return;
+            }
+            if (!MT.queued.has(st.key) && (now - st.at >= 900 || mtHasNext(u)))
+                mtWant(st.key);
+        });
+    }
+    function mtHasNext(u) {
+        for (var n = u.nextElementSibling; n; n = n.nextElementSibling)
+            if (!n.classList.contains('agzh-tr'))
+                return true;
+        return false;
+    }
+    function mtCollectOf(node, units) {
+        var el = node.nodeType === 1 ? node : node.parentElement;
+        if (!el || el.closest('.agzh-tr'))
+            return;
+        var root = el.closest('[data-markdown-root]');
+        if (!root || !mtIsTargetRoot(root))
+            return;
+        var u = mtUnitFrom(el, root);
+        if (u)
+            units.add(u);
+    }
+    function mtCollectIn(node, units) {
+        if (node.nodeType !== 1) {
+            mtCollectOf(node, units);
+            return;
+        }
+        if (node.classList.contains('agzh-tr'))
+            return;
+        var root = node.closest('[data-markdown-root]');
+        var roots = root ? [root] : node.querySelectorAll('[data-markdown-root]');
+        for (var i = 0; i < roots.length; i++) {
+            if (!mtIsTargetRoot(roots[i]))
+                continue;
+            var scope = root ? node : roots[i];
+            mtCollectOf(scope, units);
+            var els = scope.querySelectorAll(MT_UNIT_SEL);
+            for (var j = 0; j < els.length; j++) {
+                var u = mtUnitFrom(els[j], roots[i]);
+                if (u)
+                    units.add(u);
+            }
+        }
+    }
+    function mtOnRecords(records) {
+        var units = new Set(), removed = false;
+        for (var i = 0; i < records.length; i++) {
+            var r = records[i];
+            if (r.type === 'childList') {
+                if (r.removedNodes.length)
+                    removed = true;
+                for (var j = 0; j < r.addedNodes.length; j++)
+                    if (r.addedNodes[j].isConnected)
+                        mtCollectIn(r.addedNodes[j], units);
+                mtCollectOf(r.target, units);
+            }
+            else if (r.type === 'characterData') {
+                mtCollectOf(r.target, units);
+            }
+        }
+        units.forEach(mtUnit);
+        // 段落被移除时清理留在原处的译文
+        if (removed)
+            MT.tracked.forEach(function (u) {
+                var st = MT.units.get(u);
+                if (!st)
+                    MT.tracked.delete(u);
+                else if (!u.isConnected)
+                    mtDrop(u, st);
+            });
+    }
+    function mtScanAll() {
+        var units = new Set();
+        mtCollectIn(document.body, units);
+        units.forEach(mtUnit);
+    }
+    function mtClearAll() {
+        var trs = document.querySelectorAll('.agzh-tr');
+        for (var i = 0; i < trs.length; i++)
+            trs[i].parentNode.removeChild(trs[i]);
+        MT.units = new WeakMap();
+        MT.tracked.clear();
+        MT.pending.clear();
+        MT.watch.clear();
+        MT.queue.length = 0;
+        MT.queued.clear();
+        MT.dead.clear();
+        MT.tries.clear();
+        MT.solo.clear();
+    }
+    // ---- 开关：悬浮按钮 + Alt+Shift+T（Ctrl+Alt+T 会被 QQ 全局热键抢走）；状态经主进程保存（页面端口每次启动都会变，localStorage 存不住）----
+    function mtSetError(on) {
+        if (MT.error !== on) {
+            MT.error = on;
+            mtButton();
+        }
+    }
+    function mtStyle() {
+        if (document.getElementById('agzh-style'))
+            return;
+        var st = document.createElement('style');
+        st.id = 'agzh-style';
+        st.textContent =
+            '.agzh-tr{display:block;margin:2px 0 8px;padding-left:10px;border-left:2px solid rgba(127,127,127,.35);opacity:.85;font-size:.94em;line-height:1.65;white-space:pre-line;transition:opacity .2s}' +
+            '.agzh-tr.agzh-stale{opacity:.45}' +
+            'li>.agzh-tr,dd>.agzh-tr,dt>.agzh-tr{margin:2px 0 4px}' +
+            'td>.agzh-tr,th>.agzh-tr{margin:2px 0 0;padding-left:0;border-left:0}' +
+            '#agzh-mt-btn{position:fixed;z-index:2147483000;width:26px;height:26px;border-radius:13px;border:1px solid rgba(127,127,127,.35);' +
+            'background:rgba(127,127,127,.12);color:inherit;font:600 12px/24px system-ui,"Microsoft YaHei",sans-serif;text-align:center;padding:0;' +
+            'cursor:pointer;opacity:.55;transition:opacity .15s,background .15s;-webkit-app-region:no-drag;user-select:none}' +
+            '#agzh-mt-btn:hover{opacity:1}' +
+            '#agzh-mt-btn.on{background:#2563eb;border-color:#2563eb;color:#fff;opacity:.9}' +
+            '#agzh-mt-btn.err{box-shadow:0 0 0 2px rgba(239,68,68,.75)}';
+        (document.head || document.documentElement).appendChild(st);
+    }
+    function mtButton() {
+        var b = document.getElementById('agzh-mt-btn');
+        if (!b) {
+            b = document.createElement('button');
+            b.id = 'agzh-mt-btn';
+            b.type = 'button';
+            b.textContent = '\u8bd1';
+            b.setAttribute('data-agzh-skip', '');
+            b.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                mtToggle(!MT.on);
+            });
+            document.body.appendChild(b);
+        }
+        b.className = (MT.on ? 'on' : '') + (MT.on && MT.error ? ' err' : '');
+        b.title = (MT.on ? '双语对照：已开启' : '双语对照：已关闭') + '（Alt+Shift+T 切换）\n翻译思考过程、回复正文和步骤说明（微软翻译）' +
+            (MT.on && MT.error ? '\n翻译服务暂时连不上，正在自动重试' : '');
+        b.setAttribute('aria-pressed', MT.on ? 'true' : 'false');
+        mtPosition();
+    }
+    // 按钮贴在对话区右上角；没有打开对话时隐藏
+    function mtPosition() {
+        var b = document.getElementById('agzh-mt-btn');
+        if (!b)
+            return;
+        var cv = document.querySelector('[data-testid="conversation-view"]');
+        var r = cv && cv.getBoundingClientRect();
+        if (!r || r.width < 200 || r.height < 120) {
+            b.style.display = 'none';
+            return;
+        }
+        b.style.display = '';
+        b.style.top = Math.round(r.top + 10) + 'px';
+        b.style.left = Math.round(r.right - 40) + 'px';
+    }
+    function mtToggle(on, fromMain) {
+        on = !!on;
+        if (on === MT.on)
+            return;
+        MT.on = on;
+        MT.error = false;
+        if (!fromMain)
+            safe(function () { console.debug('__agzh__:' + JSON.stringify({ bilingual: on })); });
+        mtButton();
+        if (on)
+            mtScanAll();
+        else
+            mtClearAll();
+        // 步骤行：重新走一遍文本处理（开启时套用机器译文，关闭时还原）
+        processTree(document.body, new Set());
+    }
+    function mtStart() {
+        mtStyle();
+        mtButton();
+        window.__agzhSetCfg = function (cfg) {
+            if (cfg && typeof cfg.bilingual === 'boolean')
+                safe(function () { mtToggle(cfg.bilingual, true); });
+        };
+        document.addEventListener('keydown', function (e) {
+            if (e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.code === 'KeyT') {
+                e.preventDefault();
+                e.stopPropagation();
+                safe(function () { mtToggle(!MT.on); });
+            }
+        }, true);
+        window.addEventListener('resize', function () { safe(mtPosition); });
+        setInterval(function () { safe(mtPosition); }, 1000);
+        safe(function () { console.debug('__agzh__:' + JSON.stringify({ hello: 1 })); });
+        if (MT.on)
+            mtScanAll();
+    }
+    // 测试钩子：离线回归测试时导出匹配函数，不接触 DOM
+    if (typeof window.__agZhTestHook === 'function') {
+        window.__agZhTestHook({ zh: zh, translateText: translateText, MAP: MAP, REGEX_MAP: REGEX_MAP, PREFIX_MAP: PREFIX_MAP, DYNAMIC_MAP: DYNAMIC_MAP, MT: MT, mtWorth: mtWorth, mtLabel: mtLabel });
+        return;
     }
     function start() {
-        applyAll();
-        var pending = false;
-        var obs = new MutationObserver(function () {
-            if (pending)
-                return;
-            pending = true;
-            setTimeout(function () {
-                pending = false;
-                obs.disconnect();
-                try {
-                    applyAll();
+        // 中文 lang 让 Chromium 选用简体中文字形（避免中日韩混排时回退到日文字形）
+        safe(function () { document.documentElement.lang = 'zh-CN'; });
+        safe(function () { processTree(document.body, new Set()); });
+        var obs = new MutationObserver(function (records) {
+            // 同步处理（在浏览器绘制之前完成），只处理变化的节点，避免英文闪烁与整页重扫
+            safe(function () {
+                var done = new Set();
+                for (var i = 0; i < records.length; i++) {
+                    var r = records[i];
+                    if (r.type === 'childList') {
+                        for (var j = 0; j < r.addedNodes.length; j++)
+                            if (r.addedNodes[j].isConnected)
+                                processTree(r.addedNodes[j], done);
+                        // 删除兄弟文本节点会改变拆句结构，重新处理父元素
+                        if (r.removedNodes.length && r.target.nodeType === 1 && r.target.isConnected)
+                            processParentTexts(r.target, done);
+                    }
+                    else if (r.type === 'characterData') {
+                        if (r.target.parentElement)
+                            processParentTexts(r.target.parentElement, done);
+                    }
+                    else if (r.type === 'attributes') {
+                        processAttrs(r.target);
+                    }
                 }
-                catch (e) { /* 同上 */ }
-                obs.observe(document.body, {
-                    childList: true,
-                    subtree: true,
-                    characterData: true,
-                    attributes: true,
-                    attributeFilter: ATTR_KEYS,
-                });
-            }, 80);
+            });
+            if (MT.on)
+                safe(function () { mtOnRecords(records); });
+            // 丢弃本轮自身改写产生的变更记录
+            obs.takeRecords();
         });
         obs.observe(document.body, {
             childList: true,
@@ -3302,6 +4727,7 @@ function agZhRenderer() {
             attributes: true,
             attributeFilter: ATTR_KEYS,
         });
+        safe(mtStart);
     }
     if (document.body)
         start();
@@ -3309,4 +4735,18 @@ function agZhRenderer() {
         document.addEventListener('DOMContentLoaded', start);
 }
 // 以自执行函数字符串形式注入渲染进程，幂等（window.__agZhPack 防重复）
-exports.RENDERER_SCRIPT = '(' + agZhRenderer.toString() + ')();';
+// 每次注入时带上主进程保存的设置（双语对照开关），见 i18n-zh-main.js readSettings
+var RENDERER_BODY = '(' + agZhRenderer.toString() + ')();';
+function rendererConfig() {
+    try {
+        var s = require("./i18n-zh-main").readSettings();
+        return { bilingual: s.bilingual === true };
+    }
+    catch (e) {
+        return { bilingual: false };
+    }
+}
+Object.defineProperty(exports, "RENDERER_SCRIPT", {
+    enumerable: true,
+    get: function () { return 'window.__agzhCfg=' + JSON.stringify(rendererConfig()) + ';' + RENDERER_BODY; },
+});

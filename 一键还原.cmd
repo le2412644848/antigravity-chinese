@@ -16,5 +16,6 @@ if errorlevel 1 (
   exit /b 1
 )
 echo Restored. Starting Antigravity ...
+set ELECTRON_RUN_AS_NODE=
 start "" "%LOCALAPPDATA%\Programs\antigravity\Antigravity.exe"
 pause
