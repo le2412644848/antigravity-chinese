@@ -4288,18 +4288,45 @@ function agZhRenderer() {
         }
         return false;
     }
+    // 标识符类词语（命令参数、文件名/路径、带下划线或数字的名字、驼峰名、提交哈希）替换为占位符，
+    // 避免被机器翻译改写（如 --check 变成"——检查"、0153e3b 变成大写）；步骤行里连字符小写词（仓库名等）也保护
+    function mtIsToken(w, label) {
+        return /^--?[A-Za-z]/.test(w) || /^-{2,}$/.test(w) || /[\\\/]/.test(w) || /\w\.\w/.test(w) || /[A-Za-z0-9]_|_[A-Za-z0-9]/.test(w) ||
+            (/\d/.test(w) && /[A-Za-z]/.test(w)) || /[a-z][A-Z]/.test(w) ||
+            (label && /^[a-z0-9]+(?:-[a-z0-9]+)+$/.test(w));
+    }
+    function mtMask(s, label, push) {
+        return s.replace(/[^\s，。、；：！？“”‘’"'`()（）\[\]{}<>,;:!?]+/g, function (w) {
+            var m = w.match(/^(.*?)(\.*)$/);
+            if (!m[1] || !mtIsToken(m[1], label))
+                return w;
+            return '\u27e6' + push(m[1]) + '\u27e7' + m[2];
+        });
+    }
     function mtInline(g) {
         if (!MT.on)
             return g;
         var s = g.trim();
-        if (!mtWorth(s))
+        var toks = [];
+        var key = mtMask(s, true, function (t) { return toks.push(t) - 1; });
+        if (!mtWorth(key))
             return g;
-        var v = MT.cache.get(s);
-        if (v !== undefined)
-            return g.replace(s, function () { return v; });
-        if (!MT.dead.has(s)) {
+        var v = MT.cache.get(key);
+        if (v !== undefined) {
+            var lost = false;
+            var out = v.replace(MT_PH, function (_, n) {
+                if (toks[+n] === undefined)
+                    lost = true;
+                return toks[+n] || '';
+            });
+            if ((v.match(MT_PH) || []).length !== toks.length)
+                lost = true;
+            // 占位符被译丢时宁可保留原文
+            return lost ? g : g.replace(s, function () { return out; });
+        }
+        if (!MT.dead.has(key)) {
             MT_MISS = true;
-            mtWant(s);
+            mtWant(key);
         }
         return g;
     }
@@ -4358,7 +4385,7 @@ function agZhRenderer() {
         (function walk(n) {
             for (var c = n.firstChild; c; c = c.nextSibling) {
                 if (c.nodeType === 3) {
-                    text += c.nodeValue;
+                    text += mtMask(c.nodeValue, false, function (t) { return parts.push(document.createTextNode(t)) - 1; });
                     continue;
                 }
                 if (c.nodeType !== 1)
@@ -4405,6 +4432,8 @@ function agZhRenderer() {
     }
     function mtClone(el) {
         var c = el.cloneNode(true);
+        if (c.nodeType !== 1)
+            return c;
         c.removeAttribute('id');
         var ids = c.querySelectorAll('[id]');
         for (var i = 0; i < ids.length; i++)
@@ -4685,7 +4714,7 @@ function agZhRenderer() {
     }
     // 测试钩子：离线回归测试时导出匹配函数，不接触 DOM
     if (typeof window.__agZhTestHook === 'function') {
-        window.__agZhTestHook({ zh: zh, translateText: translateText, MAP: MAP, REGEX_MAP: REGEX_MAP, PREFIX_MAP: PREFIX_MAP, DYNAMIC_MAP: DYNAMIC_MAP, MT: MT, mtWorth: mtWorth, mtLabel: mtLabel });
+        window.__agZhTestHook({ zh: zh, translateText: translateText, MAP: MAP, REGEX_MAP: REGEX_MAP, PREFIX_MAP: PREFIX_MAP, DYNAMIC_MAP: DYNAMIC_MAP, MT: MT, mtWorth: mtWorth, mtLabel: mtLabel, mtMask: mtMask });
         return;
     }
     function start() {

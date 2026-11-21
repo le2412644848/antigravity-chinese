@@ -90,6 +90,19 @@ for (const [input, want] of RENDERER_CASES) {
 for (const [input, want] of WORTH_CASES) {
     check("双语过滤 " + JSON.stringify(input), R.mtWorth(input), want);
 }
+// 双语：标识符保护（占位符后的文本）
+const MASK_CASES = [
+    ["run test.js and localize.js --check", true, "run ⟦0⟧ and ⟦1⟧ ⟦2⟧"],
+    ["inspect commit 0153e3b stats", true, "inspect commit ⟦0⟧ stats"],
+    ["locate local antigravity-chinese repo", true, "locate local ⟦0⟧ repo"],
+    ["The well-known issue is that useAuth is stale.", false, "The well-known issue is that ⟦0⟧ is stale."],
+    ["run npm test -- --watch on src/lib/auth.ts.", false, "run npm test ⟦0⟧ ⟦1⟧ on ⟦2⟧."],
+    ["check AGENT_WEB_TOKEN 门禁", true, "check ⟦0⟧ 门禁"],
+];
+for (const [input, label, want] of MASK_CASES) {
+    let n = 0;
+    check("标识符保护 " + JSON.stringify(input), R.mtMask(input, label, () => n++), want);
+}
 // 关闭双语时，步骤行说明不走机器翻译（只翻分隔符后的已知片段）
 check("步骤行（双语关闭）", R.mtLabel("find Login and Lock UI components · Exited with code 1"), "find Login and Lock UI components · 已退出，退出码 1");
 check("主进程设置读取（非 Electron 环境返回空对象）", JSON.stringify(M.readSettings()), "{}");
@@ -102,7 +115,7 @@ for (const [k, v] of Object.entries(R.MAP)) {
     if (typeof v !== "string" || !v.trim()) check("词条译文为空 " + JSON.stringify(k), v, "(非空)");
 }
 
-const total = RENDERER_CASES.length + MAIN_CASES.length + WORTH_CASES.length + 2;
+const total = RENDERER_CASES.length + MAIN_CASES.length + WORTH_CASES.length + MASK_CASES.length + 2;
 console.log("词表：MAP " + Object.keys(R.MAP).length + " 条，DYNAMIC " + R.DYNAMIC_MAP.length + "，REGEX " + R.REGEX_MAP.length + "，PREFIX " + R.PREFIX_MAP.length);
 console.log(fail ? "回归测试：" + fail + " 项失败" : "回归测试：" + total + " 项全部通过，词表自检通过");
 process.exit(fail ? 1 : 0);
