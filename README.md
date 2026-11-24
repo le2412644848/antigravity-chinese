@@ -140,3 +140,35 @@ node asar-tool\localize.js . --check
 ### v1（2026-08-30，适配 2.11.0）
 
 - 直接打包固定版本的已汉化源码。
+
+---
+
+## 致谢
+
+感谢以下服务、项目与开源组件为本汉化包提供核心支撑（本仓库与以下官方团队/厂商均无从属或背书关系）：
+
+### 在线服务与上游应用
+
+| 名称 | 用途说明 | 备注 |
+| --- | --- | --- |
+| **Microsoft Edge 翻译接口** | 为「双语对照」模式提供免密钥英译中机翻能力 | 调用端点 `edge.microsoft.com/translate/translatetext`（非官方公开接口，默认关闭，开启后仅将需翻译片段发往微软接口） |
+| **Google Antigravity & Electron** | 提供目标桌面端应用与底层 Electron 运行时框架 | `Antigravity` 名称与原版程序版权归 Google LLC 所有，本工具仅为非官方第三方本地化补丁 |
+| **Node.js** | 运行 `localize.js`、`audit.js`、`test.js` 等构建与测试脚本 | 基于 MIT License 开源 |
+
+### 核心开源依赖（`asar-tool/`）
+
+| 组件 | 协议 | 用途 |
+| --- | --- | --- |
+| [@electron/asar](https://github.com/electron/asar) (`^4.3.0`) | MIT | 官方 `app.asar` 本地增量解包、Fuse 校验与重打包 |
+| `balanced-match` / `brace-expansion` | MIT | `@electron/asar` 底层路径通配依赖 |
+| `glob` / `minimatch` / `lru-cache` / `minipass` / `path-scurry` | BlueOak-1.0.0 | `@electron/asar` 文件遍历、模式匹配与流缓冲依赖 |
+
+---
+
+## 开源许可
+
+- 本仓库中的原创本地化代码、词表、主进程挂钩模块及配套脚本（`asar-tool/localize.js`、`asar-tool/audit.js`、`asar-tool/test.js`、`app-src/dist/i18n-zh.js`、`app-src/dist/i18n-zh-main.js`、`一键汉化.cmd`、`一键还原.cmd`、`README.md` 等）均基于 **[MIT License](LICENSE)** 开源。
+- **权属声明与免责边界**：
+  - `app-src/` 目录下除 `i18n-zh*.js` 外的历史原版提取文件、图标资产以及 `app-src/package.json` 所列上游依赖均归 Google LLC 及各自原作者/开源项目所有，各自遵循其原有协议，不适用本仓库 MIT 再授权；
+  - 使用「双语对照」机器翻译功能时，请注意微软在线翻译接口的服务可用性及数据外发合规性；
+  - 本工具仅在本地对桌面客户端执行可逆补丁（自动保留 `app.asar.bak-zh` 原版备份并支持 `一键还原.cmd`），使用前请确保符合目标软件的使用条款。
