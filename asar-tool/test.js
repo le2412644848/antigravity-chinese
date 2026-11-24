@@ -53,6 +53,14 @@ const RENDERER_CASES = [
     ["Exited with code 1", "已退出，退出码 1"],
     ["Running check AGENT_WEB_TOKEN on vps-syd", "正在运行：check AGENT_WEB_TOKEN on vps-syd"],
     ["Explored files, some user text", null],
+    // 2.35.0 步骤计划（todo list）进度胶囊与无障碍标签；" · " 拼接逐段翻译
+    ["3/3 steps", "3/3 步"],
+    ["2/5 steps · 1 failed · 2 skipped", "2/5 步 · 1 项失败 · 2 项已跳过"],
+    ["Plan, 2 of 5 steps done", "计划：已完成 2/5 步"],
+    ["3/3 steps. Show plan", "3/3 步。显示计划"],
+    ["Show 4 earlier steps", "显示前面的 4 个步骤"],
+    ["Working · 5s", "工作中 · 5 秒"],
+    ["Inspect server.py alert logic · 1 failed", null],
 ];
 
 // 双语对照：是否值得机器翻译
@@ -105,6 +113,21 @@ for (const [input, label, want] of MASK_CASES) {
 }
 // 关闭双语时，步骤行说明不走机器翻译（只翻分隔符后的已知片段）
 check("步骤行（双语关闭）", R.mtLabel("find Login and Lock UI components · Exited with code 1"), "find Login and Lock UI components · 已退出，退出码 1");
+// 占位符还原：接口吞掉右括号时仍能还原；标识符与中文之间补空格；占位符真丢失时保留原文
+const INLINE_CASES = [
+    ["check evaluate_node_events call site in server.py", "查看 ⟦0⟧ 调用位置 ⟦1", "查看 evaluate_node_events 调用位置 server.py"],
+    ["verify vps-probe live API and batching unit tests", "验证 ⟦0 实时 API 和批处理单元测试", "验证 vps-probe 实时 API 和批处理单元测试"],
+    ["check DELAYED_SEC usage in server.py", "查看⟦0⟧在⟦1⟧中的用法", "查看 DELAYED_SEC 在 server.py 中的用法"],
+    ["Backup and patch server.py", "备份并修补", "Backup and patch server.py"],
+];
+R.MT.on = true;
+for (const [input, mt, want] of INLINE_CASES) {
+    let n = 0;
+    R.MT.cache.set(R.mtMask(input, true, () => n++), mt);
+    check("占位符还原 " + JSON.stringify(input), R.mtInline(input), want);
+}
+R.MT.on = false;
+R.MT.cache.clear();
 check("主进程设置读取（非 Electron 环境返回空对象）", JSON.stringify(M.readSettings()), "{}");
 for (const [input, menu, want] of MAIN_CASES) {
     check("主进程 " + JSON.stringify(input), M.translate(input, menu), want);
@@ -115,7 +138,7 @@ for (const [k, v] of Object.entries(R.MAP)) {
     if (typeof v !== "string" || !v.trim()) check("词条译文为空 " + JSON.stringify(k), v, "(非空)");
 }
 
-const total = RENDERER_CASES.length + MAIN_CASES.length + WORTH_CASES.length + MASK_CASES.length + 2;
+const total = RENDERER_CASES.length + MAIN_CASES.length + WORTH_CASES.length + MASK_CASES.length + INLINE_CASES.length + 2;
 console.log("词表：MAP " + Object.keys(R.MAP).length + " 条，DYNAMIC " + R.DYNAMIC_MAP.length + "，REGEX " + R.REGEX_MAP.length + "，PREFIX " + R.PREFIX_MAP.length);
 console.log(fail ? "回归测试：" + fail + " 项失败" : "回归测试：" + total + " 项全部通过，词表自检通过");
 process.exit(fail ? 1 : 0);

@@ -3386,6 +3386,125 @@ function agZhRenderer() {
         "Edited artifact": "编辑了产物",
         "edited artifacts": "编辑了产物",
         "edited artifact": "编辑了产物",
+        // —— 2.35.0 补充词条（步骤计划 / 收件箱模式 / 听写语言 / 插件权限等） ——
+        "Show plan": "显示计划",
+        "Hide plan": "隐藏计划",
+        "Hide earlier steps": "隐藏前面的步骤",
+        "Show 1 earlier step": "显示前面的 1 个步骤",
+        "1 browser step": "1 个浏览器步骤",
+        "No browser steps recorded": "没有记录到浏览器步骤",
+        "Browser task still running…": "浏览器任务仍在运行…",
+        "Auto-Resolve": "自动标记为已解决",
+        "Continue as a new conversation": "作为新对话继续",
+        "Device name": "设备名称",
+        "Inbox Mode": "收件箱模式",
+        "Inbox": "收件箱",
+        "Resolved": "已解决",
+        "Moved to Resolved.": "已移至“已解决”。",
+        "Working Section": "“进行中”分区",
+        "Keep running conversations in a separate Working section instead of in the Inbox.": "将正在运行的对话放在单独的“进行中”分区，而不是放在收件箱里。",
+        "Move idle Inbox conversations to Resolved automatically after the selected time.": "收件箱中的对话闲置达到所选时长后，自动移至“已解决”。",
+        "Never": "从不",
+        "3 days": "3 天",
+        "Include Jetski default customizations": "包含 Jetski 默认自定义项",
+        "Plugin permissions": "插件权限",
+        "Revoke all": "全部撤销",
+        "Allowed by you": "由你允许",
+        "Included with plugin": "随插件附带",
+        "These come with the plugin and can't be revoked.": "这些权限随插件附带，无法撤销。",
+        "Changes plugins can make without asking.": "插件无需询问即可进行的更改。",
+        "Nothing is always allowed. You'll be asked before this plugin makes changes.": "没有始终允许的操作。此插件进行更改前会先询问你。",
+        "Manage hooks": "管理钩子",
+        "Manage permissions": "管理权限",
+        "Permission decision": "权限决定",
+        "Self": "自己",
+        "Self-watch target presets": "关注自己的目标预设",
+        "✓ Target set": "✓ 已设置目标",
+        "Show Automations": "显示自动化",
+        "Show Plugins": "显示插件",
+        "Subtitle": "副标题",
+        "Type your own answer": "输入你自己的答案",
+        "Application Menu": "应用菜单",
+        "Auto-detect (browser defaults)": "自动检测（浏览器默认）",
+        "Automatic check for updates": "自动检查更新",
+        "Automatically pin conversations when you send a message. Unpin as needed to keep your Pinned list focused.": "发送消息时自动置顶对话。可按需取消置顶，让置顶列表保持精简。",
+        "Available dictation languages": "可用的听写语言",
+        "Selected dictation languages": "已选的听写语言",
+        "Dictation language options": "听写语言选项",
+        "Dictation languages": "听写语言",
+        "Toggle language list": "展开/收起语言列表",
+        "Constrain voice dictation to selected languages in priority order. Leave empty to auto-detect.": "将语音听写限制为所选语言（按优先级排列）。留空则自动检测。",
+        "Click items to multi-select · Drag or ‹/› pills to reorder": "点击条目可多选 · 拖动或用 ‹/› 标签调整顺序",
+        "Browser actuation rules": "浏览器操作规则",
+        "Browser JavaScript execution policy": "浏览器 JavaScript 执行策略",
+        "Browsing data": "浏览数据",
+        "Build With Google plugins": "Build With Google 插件",
+        "Chosen": "已选择",
+        "CitC workspace type": "CitC 工作区类型",
+        "Clone from Remote": "从远程克隆",
+        "Clone from This Computer": "从这台电脑克隆",
+        "Clone locally": "克隆到本地",
+        "Cloud conversation": "云端对话",
+        "Cloud Conversation": "云端对话",
+        "Context and quota indicator": "上下文与额度指示器",
+        "Conversation steps": "对话步骤",
+        "Conversation width": "对话宽度",
+        "Markdown artifact width": "Markdown 产物宽度",
+        "Font size": "字体大小",
+        "Terminal placement": "终端位置",
+        "Screen reader mode": "屏幕阅读器模式",
+        "Custom context menus": "自定义右键菜单",
+        "Cookies the built-in browser stores for each site. Deleting a site's cookies usually signs you out of it. Other site data (local storage, IndexedDB, cache) is cleared only by Browsing data → Clear.": "内置浏览器为每个网站保存的 Cookie。删除某个网站的 Cookie 通常会让你退出该网站的登录。其他网站数据（本地存储、IndexedDB、缓存）只能通过“浏览数据 → 清除”来清理。",
+        "Coordinators Options": "协调器选项",
+        "Default (Gemini Pro)": "默认（Gemini Pro）",
+        "Default Cog branch / ref": "默认 Cog 分支 / 引用",
+        "Default Cog repository": "默认 Cog 仓库",
+        "Git-on-Borg repository used when creating a new Cog workspace from your initial prompt (e.g., chromium/chromium/src or android/platform/superproject).": "根据初始提示词新建 Cog 工作区时使用的 Git-on-Borg 仓库（例如 chromium/chromium/src 或 android/platform/superproject）。",
+        "Default uses server-managed routing and Orchestrator quota. Custom pins specific models for orchestration and execution.": "“默认”使用服务器管理的路由和编排器额度；“自定义”会为编排和执行固定使用指定模型。",
+        "Model selection": "模型选择",
+        "Orchestrator model selection": "编排器模型选择",
+        "Delete all Remote Agents data": "删除所有远程智能体数据",
+        "Download location": "下载位置",
+        "e.g. jetski or *": "例如 jetski 或 *",
+        "Enable AI credit overages": "允许超额使用 AI 积分",
+        "Enable browser agent": "启用浏览器智能体",
+        "Enable notifications for agent": "启用智能体通知",
+        "Enable sounds for agent": "启用智能体提示音",
+        "Enable telemetry": "启用遥测",
+        "Marketing emails": "营销邮件",
+        "Notification settings": "通知设置",
+        "Failed to send queued message": "发送排队消息失败",
+        "For Me": "给我自己",
+        "For My Team": "给我的团队",
+        "Personal agent running as you": "以你的身份运行的个人智能体",
+        "Shared agent for your team": "团队共享的智能体",
+        "Matches this automation's active identity.": "与此自动化当前使用的身份一致。",
+        "Search identities": "搜索身份",
+        "Search by name or username": "按名称或用户名搜索",
+        "Search Hosts…": "搜索主机…",
+        "Search Repositories…": "搜索仓库…",
+        "Google One referral": "Google One 推荐",
+        "Host environment": "主机环境",
+        "Operating system": "操作系统",
+        "User type": "用户类型",
+        "Keep in menu bar": "保留在菜单栏",
+        "New agent": "新建智能体",
+        "No agents": "没有智能体",
+        "No longer active": "已不再活跃",
+        "Open links in": "链接打开方式",
+        "Open with": "打开方式",
+        "Prevent sleep": "阻止休眠",
+        "Provisioning": "正在配置",
+        "Updating": "正在更新",
+        "Stalled": "已停滞",
+        "Reset to auto": "重置为自动",
+        "Sync JJ worktrees to head": "将 JJ 工作树同步到最新",
+        "Text viewer": "文本查看器",
+        "VS Code keyboard shortcuts": "VS Code 快捷键",
+        "Your plan:": "你的方案：",
+        "on the": "于",
+        "Couldn't connect to the SSH host. See the app log.": "无法连接到 SSH 主机，请查看应用日志。",
+        "Enter an SSH host, for example \"devbox\" or \"user@host\".": "请输入 SSH 主机，例如“devbox”或“user@host”。",
     };
     // 动态句式（正则，$1 引用捕获组）
     var REGEX_MAP = [
@@ -3429,6 +3548,35 @@ function agZhRenderer() {
         [/^Every (day|weekday|week)$/, '每$1'],
         [/^Proceed with implementation plan and (\d+) comments?$/, '按实施计划继续（附 $1 条评论）'],
         [/^(\d+) messages? in queue$/, '队列中有 $1 条消息'],
+        // 2.35.0 步骤计划（todo list）：进度胶囊 "3/3 steps · 1 failed · 2 skipped"、无障碍标签
+        [/^(\d+)\/(\d+) steps$/, '$1/$2 步'],
+        [/^(\d+) failed$/, '$1 项失败'],
+        [/^(\d+) skipped$/, '$1 项已跳过'],
+        [/^Plan, (\d+) of (\d+) steps done$/, '计划：已完成 $1/$2 步'],
+        [/^(.+)\. (Show|Hide) plan$/, function (m, a, sh) { return (translateText(a) || a) + '。' + (sh === 'Show' ? '显示' : '隐藏') + '计划'; }],
+        [/^Show (\d+) earlier steps$/, '显示前面的 $1 个步骤'],
+        [/^(\d+) browser steps$/, '$1 个浏览器步骤'],
+        [/^Step (\d+) of (\d+)$/, '第 $1 步，共 $2 步'],
+        [/^Question (\d+) of (\d+)$/, '第 $1 个问题，共 $2 个'],
+        [/^Turn (\d+) of (\d+)$/, '第 $1 轮，共 $2 轮'],
+        [/^\((\d+) steps?\)$/, '（$1 个步骤）'],
+        [/^Checkpoint #(\d+)$/, '检查点 #$1'],
+        [/^(\d+) tasks? running$/, '$1 个任务正在运行'],
+        [/^(\d+) waiting on you$/, '$1 个等待你处理'],
+        [/^(\d+) background tasks$/, '$1 个后台任务'],
+        [/^\+(\d+) attachments$/, '+$1 个附件'],
+        [/^(\d+) models selected$/, '已选择 $1 个模型'],
+        [/^(\d+) active conversations$/, '$1 个活跃对话'],
+        [/^(\d+) archived conversations$/, '$1 个已归档对话'],
+        [/^Marked (\d+) conversations as read$/, '已将 $1 个对话标为已读'],
+        [/^(\d+) lines added, (\d+) lines removed$/, '新增 $1 行，删除 $2 行'],
+        [/^(\d+) MCP servers failed to start$/, '$1 个 MCP 服务器启动失败'],
+        [/^(\d+) customizations failed to load$/, '$1 个自定义项加载失败'],
+        [/^(\d+) hidden hosts$/, '$1 个已隐藏的主机'],
+        [/^(\d+) tools? enabled$/, '已启用 $1 个工具'],
+        [/^(\d+) tools? disabled$/, '已禁用 $1 个工具'],
+        [/^(\d+) \/ (\d+) rows$/, '$1 / $2 行'],
+        [/^(\d+) rows$/, '$1 行'],
         [/^(\d{1,2}):(\d{2})\s*([AP])\.?M\.?$/i, function (m, h, mi, ap) { return (ap.toUpperCase() === 'A' ? '上午 ' : '下午 ') + h + ':' + mi; }],
     ];
     // 动态时间句式（前缀匹配，尾部时间自动美化）
@@ -3436,6 +3584,7 @@ function agZhRenderer() {
         { p: 'You have used some of your weekly limit, it will fully refresh in ', t: '你已使用部分每周额度，将在 ', s: '后完全重置。' },
         { p: 'You have used some of your 5-hour limit, it will fully refresh in ', t: '你已使用部分 5 小时额度，将在 ', s: '后完全重置。' },
         { p: 'Your Plan: ', t: '你的方案：', s: '' },
+        { p: 'Your plan: ', t: '你的方案：', s: '' },
         { p: 'Send feedback as ', t: '以 ', s: ' 身份发送反馈' },
         { p: 'Version ', t: '版本 ', s: '' },
         { p: 'Updated ', t: '更新于 ', s: '' },
@@ -3777,6 +3926,66 @@ function agZhRenderer() {
         ['Exited with code \u0001', '已退出，退出码 \u0001', 1],
         ['Used MCP tool: \u0001', '使用了 MCP 工具：\u0001', 1],
         ['Viewed \u0001', '查看了 \u0001', 1],
+        // —— 2.35.0 补充 ——
+        ['Open Subagent: \u0001 (\u0001)', '打开子智能体：\u0001（\u0001）', 1],
+        ['Open Subagent: \u0001', '打开子智能体：\u0001', 1],
+        ['Waiting on \u0001', '等待 \u0001', 1],
+        ['Task "\u0001"', '任务“\u0001”', 1],
+        ['Read URL: \u0001', '读取了网址：\u0001', 1],
+        ['Sent \u0001 to command', '已向命令发送 \u0001', 1],
+        ['Sending \u0001 to command', '正在向命令发送 \u0001', 1],
+        ["Typing '\u0001' in Browser", '正在浏览器中输入“\u0001”', 1],
+        ["Typed '\u0001' in Browser", '已在浏览器中输入“\u0001”', 1],
+        ['Open URL in system browser: \u0001', '在系统浏览器中打开网址：\u0001', 1],
+        ['Live preview unavailable \u00b7 \u0001', '实时预览不可用 · \u0001', 1],
+        ['\u0001 \u00b7 This computer', '\u0001 · 这台电脑', 1],
+        ['Remove \u0001 from Recent', '从最近列表中移除 \u0001', 1],
+        ["Couldn't remove \u0001 from Recent", '无法从最近列表中移除 \u0001', 1],
+        ['Hide \u0001 from this list', '在此列表中隐藏 \u0001', 1],
+        ['Show \u0001 in the list again', '在列表中重新显示 \u0001', 1],
+        ['Showing \u0001 again', '已重新显示 \u0001', 1],
+        ["Couldn't connect to \u0001. \u0001", '无法连接到 \u0001。\u0001', 1],
+        ["Couldn't connect to \u0001", '无法连接到 \u0001', 1],
+        ['Connecting to \u0001\u2026', '正在连接到 \u0001\u2026', 1],
+        ['Show \u0001 in folder', '在文件夹中显示 \u0001', 1],
+        ['Remove \u0001 from list', '从列表中移除 \u0001', 1],
+        ['\u0001 download progress', '\u0001 下载进度', 1],
+        ['Downloads, \u0001% complete', '下载，已完成 \u0001%', 1],
+        ['Revoke all: \u0001', '全部撤销：\u0001', 1],
+        ['Allowed in \u0001', '在 \u0001 中允许', 1],
+        ['Self (\u0001)', '自己（\u0001）', 1],
+        ['Stop \u0001?', '停止 \u0001？', 1],
+        ['Stop \u0001 selected', '停止所选的 \u0001 个', 1],
+        ['Reset \u0001 to default', '将 \u0001 重置为默认值', 1],
+        ['Move to \u0001', '移至 \u0001', 2],
+        ['Remove from \u0001', '从 \u0001 中移除', 2],
+        ['Move this conversation to "\u0001"?', '将此对话移至“\u0001”？', 1],
+        ['Run \u0001 now', '立即运行 \u0001', 1],
+        ['Started "\u0001".', '已启动“\u0001”。', 1],
+        ['Enabled "\u0001".', '已启用“\u0001”。', 1],
+        ['Restarted "\u0001".', '已重启“\u0001”。', 1],
+        ['Added \u0001 and installed \u0001.', '已添加 \u0001 并安装 \u0001。', 1],
+        ['Added \u0001.', '已添加 \u0001。', 1],
+        ['Open \u0001 settings', '打开 \u0001 设置', 2],
+        ['Reopen \u0001 settings', '重新打开 \u0001 设置', 2],
+        ['Relaunch \u0001 to finish Screen Recording.', '重新启动 \u0001 以完成屏幕录制授权。', 1],
+        ['Open \u0001 skill', '打开 \u0001 技能', 1],
+        ['Open \u0001 link?', '打开 \u0001 链接？', 1],
+        ['Available AI credits: \u0001', '可用 AI 积分：\u0001', 1],
+        ['Error signing in to MCP server: \u0001', '登录 MCP 服务器出错：\u0001', 1],
+        ['Error starting sign-in: \u0001', '启动登录出错：\u0001', 1],
+        ['MCP server \u0001 requires authentication', 'MCP 服务器 \u0001 需要身份验证', 1],
+        ['Configure \u0001, values missing', '配置 \u0001（缺少参数值）', 1],
+        ['\u0001, setup required', '\u0001，需要设置', 1],
+        ['Couldn\'t load apps: \u0001', '无法加载应用：\u0001', 1],
+        ['Couldn\'t switch to \u0001: \u0001', '无法切换到 \u0001：\u0001', 1],
+        ["Couldn't save base branch: \u0001", '无法保存基准分支：\u0001', 1],
+        ['\u0001. Starting in local workspace.', '\u0001。将在本地工作区启动。', 1],
+        ['Model: \u0001, \u0001', '模型：\u0001，\u0001', 1],
+        ['Matches \u0001 of \u0001 event types', '匹配 \u0001/\u0001 种事件类型', 1],
+        ['\u0001 is no longer available. Runs will fail until you pick another model.', '\u0001 已不可用。在你选择其他模型之前，运行都会失败。', 1],
+        ['Runs even when your computer is off. \u0001', '即使电脑关机也会运行。\u0001', 1],
+        ['Hidden by policy (\u0001).', '已被策略隐藏（\u0001）。', 1],
     ];
     // 具体句式优先：按模板字面量长度降序，避免泛化句式抢先命中
     DYNAMIC_MAP.sort(function (a, b) { return b[0].length - a[0].length; });
@@ -3916,6 +4125,21 @@ function agZhRenderer() {
                 if (_cp.indexOf(null) < 0)
                     v = _cp.join('，');
             }
+        }
+        // " · " 拼接的状态摘要（如 "3/3 steps · 1 failed"）：含英文的每段都能由词表翻译时逐段翻译
+        if (v === undefined && key.indexOf(' \u00b7 ') > 0) {
+            var _sp = key.split(' \u00b7 '), _sok = _sp.length <= 5;
+            for (var _si = 0; _si < _sp.length && _sok; _si++) {
+                if (!/[A-Za-z]/.test(_sp[_si]))
+                    continue;
+                var _sv = zh(_sp[_si]);
+                if (_sv === null)
+                    _sok = false;
+                else
+                    _sp[_si] = _sv;
+            }
+            if (_sok)
+                v = _sp.join(' \u00b7 ');
         }
         if (v === undefined || v === key)
             return null;
@@ -4149,7 +4373,8 @@ function agZhRenderer() {
         error: false,
     };
     var MT_MISS = false;
-    var MT_PH = /\u27e6\s*(\d+)\s*\u27e7/g;
+    // 微软接口偶尔吞掉右括号（"⟦1⟧" 译回 "⟦1"），右括号可省略
+    var MT_PH = /\u27e6\s*(\d+)\s*\u27e7?/g;
     var MT_UNIT_SEL = 'p,li,h1,h2,h3,h4,h5,h6,td,th,dt,dd';
     var MT_BLOCK_TAG = /^(UL|OL|PRE|TABLE|BLOCKQUOTE|DIV|P|DETAILS|H[1-6]|HR|FIGURE|SECTION)$/;
     var MT_INLINE_TAG = /^(B|STRONG|I|EM|U|S|DEL|INS|MARK|SMALL|SUB|SUP|SPAN|A|LABEL|ABBR|Q|CITE|TIME|FONT)$/;
@@ -4164,9 +4389,16 @@ function agZhRenderer() {
         var cjk = (plain.match(/[\u3400-\u9fff]/g) || []).length;
         return cjk * 2 < latin;
     }
+    // 机器翻译常见误译的编程术语修正
+    var MT_FIX = [
+        [/呼叫(?:网站|站点)/g, '调用处'],
+        [/单元测验/g, '单元测试'],
+    ];
     function mtPut(src, out) {
         if (MT.cache.size >= 4000)
             MT.cache.delete(MT.cache.keys().next().value);
+        for (var i = 0; i < MT_FIX.length; i++)
+            out = out.replace(MT_FIX[i][0], MT_FIX[i][1]);
         MT.cache.set(src, out);
     }
     function mtWant(s) {
@@ -4283,7 +4515,8 @@ function agZhRenderer() {
                 continue;
             if (ti.trim() !== s)
                 return false;
-            return (e.matches('span.truncate') && !!e.parentElement && e.parentElement.matches('div.whitespace-nowrap')) ||
+            // 2.35.0 步骤计划（todo list）条目：li[data-testid=step-plan-item] > span[title]
+            return (e.matches('span.truncate') && !!e.parentElement && e.parentElement.matches('div.whitespace-nowrap,li[data-testid="step-plan-item"]')) ||
                 !!e.querySelector(':scope > .shimmer-text-mask');
         }
         return false;
@@ -4314,10 +4547,12 @@ function agZhRenderer() {
         var v = MT.cache.get(key);
         if (v !== undefined) {
             var lost = false;
-            var out = v.replace(MT_PH, function (_, n) {
+            var out = v.replace(MT_PH, function (ph, n, off, str) {
                 if (toks[+n] === undefined)
                     lost = true;
-                return toks[+n] || '';
+                // 标识符与中文之间补空格（"检查DELAYED_SEC在" -> "检查 DELAYED_SEC 在"）
+                var cjk = /[\u3400-\u9fff]/;
+                return (cjk.test(str.charAt(off - 1)) ? ' ' : '') + (toks[+n] || '') + (cjk.test(str.charAt(off + ph.length)) ? ' ' : '');
             });
             if ((v.match(MT_PH) || []).length !== toks.length)
                 lost = true;
@@ -4714,7 +4949,7 @@ function agZhRenderer() {
     }
     // 测试钩子：离线回归测试时导出匹配函数，不接触 DOM
     if (typeof window.__agZhTestHook === 'function') {
-        window.__agZhTestHook({ zh: zh, translateText: translateText, MAP: MAP, REGEX_MAP: REGEX_MAP, PREFIX_MAP: PREFIX_MAP, DYNAMIC_MAP: DYNAMIC_MAP, MT: MT, mtWorth: mtWorth, mtLabel: mtLabel, mtMask: mtMask });
+        window.__agZhTestHook({ zh: zh, translateText: translateText, MAP: MAP, REGEX_MAP: REGEX_MAP, PREFIX_MAP: PREFIX_MAP, DYNAMIC_MAP: DYNAMIC_MAP, MT: MT, mtWorth: mtWorth, mtLabel: mtLabel, mtMask: mtMask, mtInline: mtInline });
         return;
     }
     function start() {

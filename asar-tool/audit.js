@@ -102,6 +102,57 @@ function looksLikeUi(s) {
     return true;
 }
 
+/**
+ * 模板字符串句式（如 `${d}/${f} steps`）：从每个 ${ 向两侧找反引号边界（整文件正则会被嵌套模板带偏），
+ * 变量替换为 \u0001，返回 [{ stat, at }]
+ */
+function extractTemplates(src) {
+    const out = [], seen = new Set();
+    function at(i) {
+        let a = i;
+        while (a > 0 && i - a < 300) {
+            a--;
+            if (src[a] === "`") break;
+            if (src[a] === "}") return null;
+        }
+        if (src[a] !== "`" || seen.has(a)) return null;
+        seen.add(a);
+        let b = a + 1, stat = "", cur = "";
+        while (b < src.length && b - a < 600) {
+            const c = src[b];
+            if (c === "\\") { cur += src.substr(b, 2); b += 2; continue; }
+            if (c === "`") return { stat: stat + decode(cur), at: a };
+            if (c === "$" && src[b + 1] === "{") {
+                let d = 1, k = b + 2;
+                for (; k < src.length && d > 0; k++) {
+                    if (src[k] === "{") d++;
+                    else if (src[k] === "}") d--;
+                    else if (src[k] === "`") return null;
+                }
+                stat += decode(cur) + "\u0001";
+                cur = "";
+                b = k;
+                continue;
+            }
+            cur += c;
+            b++;
+        }
+        return null;
+    }
+    for (let i = src.indexOf("${"); i >= 0; i = src.indexOf("${", i + 1)) {
+        const t = at(i);
+        if (!t) continue;
+        const s = t.stat.trim(), words = s.replace(/\u0001/g, "").trim();
+        if (!/[A-Za-z]{3,}/.test(s) || !/\s/.test(words) || /[\u4e00-\u9fff]/.test(s)) continue;
+        // CSS 类名 / 样式值 / 代码片段 / 内部协议文本
+        if (/[<>{}=;_]|https?:|^[\/.#@-]|[a-z][A-Z]|\\n|--|\.(js|ts|json|png|css)\b/.test(s)) continue;
+        if (/\b(px|rem|var|translate|rgba?|hsla?|calc|ms|repeat|minmax|gradient|color-mix|srgb|ease-out|cubic-bezier)\b|\b(flex|gap|rounded|text-|bg-|border|shrink|duration|w-|h-|p[xy]?-|m[xy]?-|items-|justify-|transition|font-|select-none|cursor|opacity|absolute|relative|hover:|tabular)/.test(s)) continue;
+        if (NON_UI_CONTEXT.test(src.slice(Math.max(0, t.at - 60), t.at)) || /(?:throw\s*(?:new \w+\()?|Error\()\s*$/.test(src.slice(Math.max(0, t.at - 30), t.at))) continue;
+        out.push({ stat: s, at: t.at });
+    }
+    return out;
+}
+
 function loadRendererApi() {
     const { RENDERER_SCRIPT } = require(path.join(__dirname, "..", "app-src", "dist", "i18n-zh.js"));
     let api;
@@ -140,6 +191,16 @@ async function main() {
     fs.writeFileSync(OUT_FILE, missing.map(([s, n]) => n + "\t" + JSON.stringify(s)).join("\n") + "\n", "utf8");
     const total = counts.size;
     console.log("界面文案候选 " + total + " 条，已覆盖 " + hit + " 条（" + (total ? (hit * 100 / total).toFixed(1) : "0") + "%），未覆盖 " + missing.length + " 条");
+    // 模板句式：变量用样例值 3 代入后看能否翻译
+    const tpl = new Map();
+    for (const { stat } of extractTemplates(src)) {
+        if (tpl.has(stat)) continue;
+        const v = R.translateText(stat.replace(/\u0001/g, "3"));
+        tpl.set(stat, v !== null && /[\u4e00-\u9fff]/.test(v));
+    }
+    const tplMissing = [...tpl].filter(([, ok]) => !ok).map(([s]) => s);
+    fs.appendFileSync(OUT_FILE, "\n# 模板句式（\\u0001 = 运行时变量；含较多内部报错文案，仅供参考）\n" + tplMissing.map((s) => JSON.stringify(s)).join("\n") + "\n", "utf8");
+    console.log("模板句式候选 " + tpl.size + " 条，已覆盖 " + (tpl.size - tplMissing.length) + " 条，未覆盖 " + tplMissing.length + " 条");
     console.log("未覆盖清单：" + OUT_FILE);
     console.log("（候选由启发式规则提取，含少量内部字符串/品牌名，覆盖率仅供参考）");
 }

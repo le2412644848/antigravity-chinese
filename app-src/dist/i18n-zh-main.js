@@ -156,6 +156,8 @@ const TEMPLATES = [
     [/^(.+?), another machine that shares your home directory, started your Antigravity server\.$/, '$1（另一台与你共享主目录的机器）启动了你的 Antigravity 服务器。'],
     [/^Windows SSH hosts aren't supported yet\. ?(.*)$/, '暂不支持 Windows SSH 主机。$1'],
     [/^Password for (.+)$/, '$1 的密码'],
+    [/^(.+) can't be the SSH config file$/, '$1 不能用作 SSH 配置文件'],
+    [/^SSH: (.+)$/, 'SSH：$1'],
     [/^Error code: (.*)$/, '错误代码：$1'],
     [/^Logs: (.*)$/, '日志：$1'],
     [/^Error: (.*)$/, '错误：$1'],
